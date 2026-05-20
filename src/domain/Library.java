@@ -22,7 +22,7 @@ public class Library {
     }
 
     public void registerUser(User u) {
-        if (u != null && findUserById(u.getId()) == null) {
+        if (u != null && findUserById(u.getCarnet()) == null) {
             users.add(u);
         }
     }
@@ -81,7 +81,7 @@ public class Library {
 
     public User findUserById(String id) {
         for (User user : users) {
-            if (id != null && id.equals(user.getId())) {
+            if (id != null && id.equals(user.getCarnet())) {
                 return user;
             }
         }
@@ -93,7 +93,7 @@ public class Library {
         int counter = 0;
 
         for (Loan loan : loans) {
-            if (loan.getUser().getId().equals(user.getId())) {
+            if (loan.getUser().getCarnet().equals(user.getCarnet())) {
                 counter++;
             }
         }
