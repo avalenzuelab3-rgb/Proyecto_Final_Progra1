@@ -170,8 +170,7 @@ public class MainFrame extends JFrame {
         JOptionPane.showMessageDialog(this, message, "Biblioteca 2.0", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    // Este main es solo para probar la ventana directamente.
-    // Mas adelante pueden usar app/Main.java para iniciar todo el sistema.
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             Library library = new Library();
