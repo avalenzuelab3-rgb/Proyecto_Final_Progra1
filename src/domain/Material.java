@@ -57,7 +57,9 @@ public abstract class Material {
 		this.pages = pages;
 	}
 	
-	public abstract double calculateFine(); 
+	public abstract double calculateFine(); //calcular multa
+	
+	public abstract int daysMaxLoan(); //dias prestamo maximo
 
 }
 
