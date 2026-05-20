@@ -9,5 +9,19 @@ public class Loan {
         this.material = material;
         this.user = user;
     }
+    
+    public Material getMaterial() {
+        return material;
+    }
+
+    public User getUser() {
+        return user;
+    }
+    
+    public void loanStatus() {
+    	//se queda asi para mientras
+    }
+    
+    
     //Esta clase que nos dejara ver que usuario pidio y que material fue prestado 
 }
