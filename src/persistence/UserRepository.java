@@ -1,17 +1,17 @@
 package persistence;
 
-public class MaterialRepository {
+public class UserRepository {
 
-    private static final String FILE_NAME = "materials.csv";
+    private static final String FILE_NAME = "users.csv";
 
     private CsvFileManager csvFileManager;
 
-    public MaterialRepository() {
+    public UserRepository() {
         csvFileManager = new CsvFileManager();
     }
 
     public void writeTestLine() {
-        csvFileManager.writeLine(FILE_NAME, "1;BOOK;Libro de prueba;2026;true");
+        csvFileManager.writeLine(FILE_NAME, "2026-001;Usuario de prueba;3");
     }
 
     public String readTestLine() {
