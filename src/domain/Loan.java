@@ -119,4 +119,11 @@ public class Loan {
                 ", status=" + getStatus() +
                 '}';
     }
+    
+    /*
+     * sndjanscn
+     * najdcnkjnskj
+     * asnkjcnkj
+     */
+     */
 }
