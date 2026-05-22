@@ -66,7 +66,7 @@ public class MainFrame extends JFrame {
     private JTabbedPane createTabs() {
         JTabbedPane tabs = new JTabbedPane();
 
-        tabs.addTab("Catalogo", createCatalogPanel());
+        tabs.addTab("Catalogo", new CatalogPanel(library));
         tabs.addTab("Usuarios", createUsersPanel());
         tabs.addTab("Operaciones", createOperationsPanel());
         tabs.addTab("Prestamos activos", createLoansPanel());
@@ -74,36 +74,8 @@ public class MainFrame extends JFrame {
         return tabs;
     }
 
-    private JPanel createCatalogPanel() {
-        JPanel panel = createBasePanel("Catalogo de materiales");
-
-        JButton addBookButton = new JButton("Registrar libro");
-        JButton addMagazineButton = new JButton("Registrar revista");
-        JButton searchButton = new JButton("Buscar material");
-        JButton listButton = new JButton("Listar materiales");
-
-        addBookButton.addActionListener(e -> showMessage("Aqui se abrira el formulario para registrar libros."));
-        addMagazineButton.addActionListener(e -> showMessage("Aqui se abrira el formulario para registrar revistas."));
-        searchButton.addActionListener(e -> showMessage("Aqui se buscara un material por codigo o titulo."));
-        listButton.addActionListener(e -> showMessage("Aqui se mostrara la lista de materiales registrados."));
-
-        addButtons(panel, addBookButton, addMagazineButton, searchButton, listButton);
-        return panel;
-    }
-
     private JPanel createUsersPanel() {
-        JPanel panel = createBasePanel("Gestion de usuarios");
-
-        JButton addUserButton = new JButton("Registrar usuario");
-        JButton searchUserButton = new JButton("Buscar usuario");
-        JButton listUsersButton = new JButton("Listar usuarios");
-
-        addUserButton.addActionListener(e -> showMessage("Aqui se abrira el formulario para registrar usuarios."));
-        searchUserButton.addActionListener(e -> showMessage("Aqui se buscara un usuario por carnet o ID."));
-        listUsersButton.addActionListener(e -> showMessage("Aqui se mostrara la lista de usuarios registrados."));
-
-        addButtons(panel, addUserButton, searchUserButton, listUsersButton);
-        return panel;
+        return new UsersPanel(library);
     }
 
     private JPanel createOperationsPanel() {
@@ -116,6 +88,7 @@ public class MainFrame extends JFrame {
         returnButton.addActionListener(e -> showMessage("Aqui se conectara con library.returnMaterial(codigoMaterial)."));
 
         addButtons(panel, loanButton, returnButton);
+
         return panel;
     }
 
@@ -126,6 +99,7 @@ public class MainFrame extends JFrame {
         refreshButton.addActionListener(e -> showMessage("Aqui se mostraran los prestamos activos del sistema."));
 
         addButtons(panel, refreshButton);
+
         return panel;
     }
 
@@ -142,6 +116,7 @@ public class MainFrame extends JFrame {
 
         JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 22));
+
         panel.add(titleLabel, gbc);
 
         return panel;
@@ -149,8 +124,6 @@ public class MainFrame extends JFrame {
 
     private void addButtons(JPanel panel, JButton... buttons) {
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 1;
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.ipadx = 40;
@@ -162,14 +135,19 @@ public class MainFrame extends JFrame {
 
             gbc.gridx = i % 2;
             gbc.gridy = 1 + (i / 2);
+
             panel.add(button, gbc);
         }
     }
 
     private void showMessage(String message) {
-        JOptionPane.showMessageDialog(this, message, "Biblioteca 2.0", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(
+                this,
+                message,
+                "Biblioteca 2.0",
+                JOptionPane.INFORMATION_MESSAGE
+        );
     }
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -179,5 +157,3 @@ public class MainFrame extends JFrame {
         });
     }
 }
-
-// dadioio
