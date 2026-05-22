@@ -66,7 +66,7 @@ public class MainFrame extends JFrame {
     private JTabbedPane createTabs() {
         JTabbedPane tabs = new JTabbedPane();
 
-        tabs.addTab("Catalogo", createCatalogPanel());
+        tabs.addTab("Catalogo", new CatalogPanel(library));
         tabs.addTab("Usuarios", createUsersPanel());
         tabs.addTab("Operaciones", createOperationsPanel());
         tabs.addTab("Prestamos activos", createLoansPanel());
