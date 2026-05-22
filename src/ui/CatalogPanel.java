@@ -1,11 +1,11 @@
 package ui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
 import domain.Book;
@@ -29,22 +30,21 @@ public class CatalogPanel extends JPanel {
 
     private Library library;
 
-    private JComboBox<String> typeComboBox;
+    private JComboBox<String> typeCombo;
     private JTextField codeField;
     private JTextField titleField;
+    private JTextField authorOrEditionField;
     private JTextField yearField;
     private JTextField pagesField;
-    private JTextField extraField;
-    private JLabel extraLabel;
     private JTextField searchField;
 
-    private JTable materialsTable;
+    private JLabel authorOrEditionLabel;
     private DefaultTableModel tableModel;
 
     public CatalogPanel(Library library) {
         this.library = library;
 
-        setLayout(new BorderLayout(15, 15));
+        setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         initComponents();
@@ -55,95 +55,101 @@ public class CatalogPanel extends JPanel {
         add(createTitlePanel(), BorderLayout.NORTH);
         add(createFormPanel(), BorderLayout.WEST);
         add(createTablePanel(), BorderLayout.CENTER);
-        add(createSearchPanel(), BorderLayout.SOUTH);
     }
 
     private JPanel createTitlePanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        JLabel titleLabel = new JLabel("Catalogo de materiales");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 22));
+        JLabel titleLabel = new JLabel("Catalogo de materiales", SwingConstants.LEFT);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+
+        JLabel subtitleLabel = new JLabel("Registro, busqueda y listado de materiales", SwingConstants.RIGHT);
+        subtitleLabel.setFont(new Font("Arial", Font.PLAIN, 14));
 
         panel.add(titleLabel, BorderLayout.WEST);
+        panel.add(subtitleLabel, BorderLayout.EAST);
 
         return panel;
     }
 
     private JPanel createFormPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("Registrar material"));
+        panel.setBorder(BorderFactory.createTitledBorder("Datos del material"));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 6, 6, 6);
+        gbc.insets = new Insets(8, 8, 8, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.WEST;
 
-        typeComboBox = new JComboBox<String>(new String[] { "Libro", "Revista" });
+        typeCombo = new JComboBox<String>(new String[] { "Libro", "Revista" });
         codeField = new JTextField(15);
         titleField = new JTextField(15);
+        authorOrEditionField = new JTextField(15);
         yearField = new JTextField(15);
         pagesField = new JTextField(15);
-        extraField = new JTextField(15);
-        extraLabel = new JLabel("Autor:");
+        searchField = new JTextField(15);
+        authorOrEditionLabel = new JLabel("Autor:");
 
-        typeComboBox.addActionListener(e -> updateExtraLabel());
+        typeCombo.addActionListener(e -> updateTypeLabel());
 
-        addFormRow(panel, gbc, 0, "Tipo:", typeComboBox);
-        addFormRow(panel, gbc, 1, "Codigo:", codeField);
-        addFormRow(panel, gbc, 2, "Titulo:", titleField);
-        addFormRow(panel, gbc, 3, "Anio:", yearField);
-        addFormRow(panel, gbc, 4, "Paginas:", pagesField);
-        addFormRow(panel, gbc, 5, extraLabel, extraField);
-
-        JButton saveButton = new JButton("Registrar");
+        JButton registerButton = new JButton("Registrar");
+        JButton searchButton = new JButton("Buscar");
+        JButton showAllButton = new JButton("Mostrar todos");
         JButton clearButton = new JButton("Limpiar");
-        JButton refreshButton = new JButton("Actualizar tabla");
 
-        saveButton.addActionListener(e -> registerMaterial());
+        registerButton.addActionListener(e -> registerMaterial());
+        searchButton.addActionListener(e -> searchMaterial());
+        showAllButton.addActionListener(e -> refreshTable());
         clearButton.addActionListener(e -> clearFields());
-        refreshButton.addActionListener(e -> refreshTable());
+
+        int row = 0;
+
+        addLabelAndComponent(panel, gbc, row++, "Tipo:", typeCombo);
+        addLabelAndComponent(panel, gbc, row++, "Codigo:", codeField);
+        addLabelAndComponent(panel, gbc, row++, "Titulo:", titleField);
+        addLabelAndComponent(panel, gbc, row++, authorOrEditionLabel, authorOrEditionField);
+        addLabelAndComponent(panel, gbc, row++, "Anio:", yearField);
+        addLabelAndComponent(panel, gbc, row++, "Paginas:", pagesField);
 
         gbc.gridx = 0;
-        gbc.gridy = 6;
+        gbc.gridy = row++;
         gbc.gridwidth = 2;
-        panel.add(saveButton, gbc);
+        panel.add(new JLabel("Buscar por codigo:"), gbc);
 
-        gbc.gridy = 7;
+        gbc.gridy = row++;
+        panel.add(searchField, gbc);
+
+        gbc.gridy = row++;
+        panel.add(registerButton, gbc);
+
+        gbc.gridy = row++;
+        panel.add(searchButton, gbc);
+
+        gbc.gridy = row++;
+        panel.add(showAllButton, gbc);
+
+        gbc.gridy = row++;
         panel.add(clearButton, gbc);
-
-        gbc.gridy = 8;
-        panel.add(refreshButton, gbc);
 
         return panel;
     }
 
-    private void addFormRow(JPanel panel, GridBagConstraints gbc, int row, String label, java.awt.Component field) {
-        gbc.gridx = 0;
-        gbc.gridy = row;
-        gbc.gridwidth = 1;
-        panel.add(new JLabel(label), gbc);
-
-        gbc.gridx = 1;
-        panel.add(field, gbc);
+    private void addLabelAndComponent(JPanel panel, GridBagConstraints gbc, int row, String label, Component component) {
+        addLabelAndComponent(panel, gbc, row, new JLabel(label), component);
     }
 
-    private void addFormRow(JPanel panel, GridBagConstraints gbc, int row, JLabel label, java.awt.Component field) {
+    private void addLabelAndComponent(JPanel panel, GridBagConstraints gbc, int row, JLabel label, Component component) {
         gbc.gridx = 0;
         gbc.gridy = row;
         gbc.gridwidth = 1;
         panel.add(label, gbc);
 
         gbc.gridx = 1;
-        panel.add(field, gbc);
+        panel.add(component, gbc);
     }
 
-    private JPanel createTablePanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("Materiales registrados"));
-
-        String[] columns = {
-            "Tipo", "Codigo", "Titulo", "Anio", "Paginas", "Detalle", "Disponible", "Dias prestamo"
-        };
+    private JScrollPane createTablePanel() {
+        String[] columns = { "Tipo", "Codigo", "Titulo", "Autor/Edicion", "Anio", "Paginas", "Disponible" };
 
         tableModel = new DefaultTableModel(columns, 0) {
             private static final long serialVersionUID = 1L;
@@ -154,197 +160,148 @@ public class CatalogPanel extends JPanel {
             }
         };
 
-        materialsTable = new JTable(tableModel);
-        materialsTable.setAutoCreateRowSorter(true);
+        JTable table = new JTable(tableModel);
+        table.setFillsViewportHeight(true);
+        table.setRowHeight(24);
 
-        panel.add(new JScrollPane(materialsTable), BorderLayout.CENTER);
-
-        return panel;
+        return new JScrollPane(table);
     }
 
-    private JPanel createSearchPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createTitledBorder("Buscar material"));
-
-        searchField = new JTextField();
-        JButton searchButton = new JButton("Buscar");
-        JButton showAllButton = new JButton("Mostrar todos");
-
-        searchButton.addActionListener(e -> searchMaterial());
-
-        showAllButton.addActionListener(e -> {
-            searchField.setText("");
-            refreshTable();
-        });
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(searchButton);
-        buttonPanel.add(showAllButton);
-
-        panel.add(new JLabel("Codigo o titulo:"), BorderLayout.WEST);
-        panel.add(searchField, BorderLayout.CENTER);
-        panel.add(buttonPanel, BorderLayout.EAST);
-
-        return panel;
-    }
-
-    private void updateExtraLabel() {
-        String selectedType = (String) typeComboBox.getSelectedItem();
-
-        if ("Libro".equals(selectedType)) {
-            extraLabel.setText("Autor:");
+    private void updateTypeLabel() {
+        if ("Libro".equals(typeCombo.getSelectedItem())) {
+            authorOrEditionLabel.setText("Autor:");
         } else {
-            extraLabel.setText("No. edicion:");
+            authorOrEditionLabel.setText("Edicion:");
         }
-
-        extraField.setText("");
     }
 
     private void registerMaterial() {
         try {
-            String type = (String) typeComboBox.getSelectedItem();
+            String type = String.valueOf(typeCombo.getSelectedItem());
+            String codeText = codeField.getText().trim();
+            String title = titleField.getText().trim();
+            String extra = authorOrEditionField.getText().trim();
+            String yearText = yearField.getText().trim();
+            String pagesText = pagesField.getText().trim();
 
-            int code = readPositiveInt(codeField, "codigo");
-            String title = readRequiredText(titleField, "titulo");
-            int year = readPositiveInt(yearField, "anio");
-            int pages = readPositiveInt(pagesField, "paginas");
+            if (codeText.isEmpty() || title.isEmpty() || extra.isEmpty()
+                    || yearText.isEmpty() || pagesText.isEmpty()) {
+                showWarning("Debe llenar todos los campos del material.");
+                return;
+            }
+
+            int code = Integer.parseInt(codeText);
+            int year = Integer.parseInt(yearText);
+            int pages = Integer.parseInt(pagesText);
 
             if (library.findMaterialByCode(code) != null) {
-                showError("Ya existe un material con ese codigo.");
+                showWarning("Ya existe un material registrado con ese codigo.");
+                return;
+            }
+
+            if (year <= 0 || pages <= 0) {
+                showWarning("El anio y las paginas deben ser mayores que 0.");
                 return;
             }
 
             Material material;
 
             if ("Libro".equals(type)) {
-                String author = readRequiredText(extraField, "autor");
-                material = new Book(title, author, pages, code, year, true);
+                material = new Book(title, extra, pages, code, year, true);
             } else {
-                int editionNumber = readPositiveInt(extraField, "numero de edicion");
-                material = new Magazine(title, editionNumber, code, year, true, pages);
+                int edition = Integer.parseInt(extra);
+                material = new Magazine(title, edition, code, year, true, pages);
             }
 
             library.registerMaterial(material);
-
             refreshTable();
             clearFields();
 
-            JOptionPane.showMessageDialog(this, "Material registrado correctamente.");
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Material registrado correctamente.",
+                    "Catalogo",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
 
+        } catch (NumberFormatException ex) {
+            showWarning("Codigo, anio, paginas y edicion deben ser numeros enteros.");
         } catch (IllegalArgumentException ex) {
-            showError(ex.getMessage());
+            showWarning(ex.getMessage());
         }
     }
 
     private void searchMaterial() {
-        String text = searchField.getText().trim().toLowerCase();
+        String codeText = searchField.getText().trim();
 
-        if (text.isEmpty()) {
-            refreshTable();
+        if (codeText.isEmpty()) {
+            showWarning("Ingrese el codigo que desea buscar.");
             return;
         }
 
-        tableModel.setRowCount(0);
+        try {
+            int code = Integer.parseInt(codeText);
+            Material material = library.findMaterialByCode(code);
 
-        List<Material> materials = library.getMaterials();
+            tableModel.setRowCount(0);
 
-        for (Material material : materials) {
-            String code = String.valueOf(material.getCode());
-            String title = material.getTitle().toLowerCase();
-
-            if (code.contains(text) || title.contains(text)) {
-                addMaterialToTable(material);
+            if (material == null) {
+                showWarning("No se encontro ningun material con ese codigo.");
+                return;
             }
+
+            addMaterialToTable(material);
+
+        } catch (NumberFormatException ex) {
+            showWarning("El codigo debe ser un numero entero.");
         }
     }
 
     private void refreshTable() {
         tableModel.setRowCount(0);
 
-        List<Material> materials = library.getMaterials();
-
-        for (Material material : materials) {
+        for (Material material : library.getMaterials()) {
             addMaterialToTable(material);
         }
     }
 
     private void addMaterialToTable(Material material) {
-        tableModel.addRow(new Object[] {
-            getMaterialType(material),
-            material.getCode(),
-            material.getTitle(),
-            material.getYear(),
-            material.getPages(),
-            getMaterialDetail(material),
-            material.isAvailable() ? "Si" : "No",
-            material.daysMaxLoan()
-        });
-    }
+        String type = material instanceof Book ? "Libro" : "Revista";
+        String extra = "";
 
-    private String getMaterialType(Material material) {
-        if (material instanceof Book) {
-            return "Libro";
-        }
-
-        if (material instanceof Magazine) {
-            return "Revista";
-        }
-
-        return "Material";
-    }
-
-    private String getMaterialDetail(Material material) {
         if (material instanceof Book) {
             Book book = (Book) material;
-            return "Autor: " + book.getAutor();
-        }
-
-        if (material instanceof Magazine) {
+            extra = book.getAutor();
+        } else if (material instanceof Magazine) {
             Magazine magazine = (Magazine) material;
-            return "Edicion: " + magazine.getEditionNumber();
+            extra = String.valueOf(magazine.getEditionNumber());
         }
 
-        return "";
-    }
+        Object[] row = {
+                type,
+                material.getCode(),
+                material.getTitle(),
+                extra,
+                material.getYear(),
+                material.getPages(),
+                material.isAvailable() ? "Si" : "No"
+        };
 
-    private String readRequiredText(JTextField field, String fieldName) {
-        String text = field.getText().trim();
-
-        if (text.isEmpty()) {
-            throw new IllegalArgumentException("El campo " + fieldName + " no puede estar vacio.");
-        }
-
-        return text;
-    }
-
-    private int readPositiveInt(JTextField field, String fieldName) {
-        String text = readRequiredText(field, fieldName);
-
-        try {
-            int number = Integer.parseInt(text);
-
-            if (number <= 0) {
-                throw new IllegalArgumentException("El campo " + fieldName + " debe ser mayor que 0.");
-            }
-
-            return number;
-
-        } catch (NumberFormatException ex) {
-            throw new IllegalArgumentException("El campo " + fieldName + " debe ser un numero entero.");
-        }
+        tableModel.addRow(row);
     }
 
     private void clearFields() {
         codeField.setText("");
         titleField.setText("");
+        authorOrEditionField.setText("");
         yearField.setText("");
         pagesField.setText("");
-        extraField.setText("");
-        typeComboBox.setSelectedIndex(0);
+        searchField.setText("");
+        typeCombo.setSelectedIndex(0);
         codeField.requestFocus();
     }
 
-    private void showError(String message) {
-        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    private void showWarning(String message) {
+        JOptionPane.showMessageDialog(this, message, "Aviso", JOptionPane.WARNING_MESSAGE);
     }
 }

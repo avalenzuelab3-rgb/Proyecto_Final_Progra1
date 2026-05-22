@@ -14,17 +14,22 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableModel;
 
 import domain.Library;
+import domain.Loan;
 
 public class MainFrame extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
     private Library library;
+    private DefaultTableModel loansTableModel;
 
     public MainFrame(Library library) {
         this.library = library;
@@ -67,43 +72,11 @@ public class MainFrame extends JFrame {
         JTabbedPane tabs = new JTabbedPane();
 
         tabs.addTab("Catalogo", new CatalogPanel(library));
-        tabs.addTab("Usuarios", createUsersPanel());
+        tabs.addTab("Usuarios", new UsersPanel(library));
         tabs.addTab("Operaciones", createOperationsPanel());
         tabs.addTab("Prestamos activos", createLoansPanel());
 
         return tabs;
-    }
-
-    private JPanel createCatalogPanel() {
-        JPanel panel = createBasePanel("Catalogo de materiales");
-
-        JButton addBookButton = new JButton("Registrar libro");
-        JButton addMagazineButton = new JButton("Registrar revista");
-        JButton searchButton = new JButton("Buscar material");
-        JButton listButton = new JButton("Listar materiales");
-
-        addBookButton.addActionListener(e -> showMessage("Aqui se abrira el formulario para registrar libros."));
-        addMagazineButton.addActionListener(e -> showMessage("Aqui se abrira el formulario para registrar revistas."));
-        searchButton.addActionListener(e -> showMessage("Aqui se buscara un material por codigo o titulo."));
-        listButton.addActionListener(e -> showMessage("Aqui se mostrara la lista de materiales registrados."));
-
-        addButtons(panel, addBookButton, addMagazineButton, searchButton, listButton);
-        return panel;
-    }
-
-    private JPanel createUsersPanel() {
-        JPanel panel = createBasePanel("Gestion de usuarios");
-
-        JButton addUserButton = new JButton("Registrar usuario");
-        JButton searchUserButton = new JButton("Buscar usuario");
-        JButton listUsersButton = new JButton("Listar usuarios");
-
-        addUserButton.addActionListener(e -> showMessage("Aqui se abrira el formulario para registrar usuarios."));
-        searchUserButton.addActionListener(e -> showMessage("Aqui se buscara un usuario por carnet o ID."));
-        listUsersButton.addActionListener(e -> showMessage("Aqui se mostrara la lista de usuarios registrados."));
-
-        addButtons(panel, addUserButton, searchUserButton, listUsersButton);
-        return panel;
     }
 
     private JPanel createOperationsPanel() {
@@ -112,21 +85,63 @@ public class MainFrame extends JFrame {
         JButton loanButton = new JButton("Prestar material");
         JButton returnButton = new JButton("Devolver material");
 
-        loanButton.addActionListener(e -> showMessage("Aqui se conectara con library.loanMaterial(codigoMaterial, idUsuario)."));
-        returnButton.addActionListener(e -> showMessage("Aqui se conectara con library.returnMaterial(codigoMaterial)."));
+        loanButton.addActionListener(e -> showMessage("Este modulo se completara en OperationsPanel."));
+        returnButton.addActionListener(e -> showMessage("Este modulo se completara en OperationsPanel."));
 
         addButtons(panel, loanButton, returnButton);
+
         return panel;
     }
 
     private JPanel createLoansPanel() {
-        JPanel panel = createBasePanel("Prestamos activos");
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JLabel titleLabel = new JLabel("Prestamos activos", SwingConstants.LEFT);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        panel.add(titleLabel, BorderLayout.NORTH);
+
+        String[] columns = { "Codigo", "Material", "Carnet", "Usuario" };
+
+        loansTableModel = new DefaultTableModel(columns, 0) {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        JTable table = new JTable(loansTableModel);
+        table.setFillsViewportHeight(true);
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
 
         JButton refreshButton = new JButton("Actualizar lista");
-        refreshButton.addActionListener(e -> showMessage("Aqui se mostraran los prestamos activos del sistema."));
+        refreshButton.addActionListener(e -> refreshLoansTable());
+        panel.add(refreshButton, BorderLayout.SOUTH);
 
-        addButtons(panel, refreshButton);
+        refreshLoansTable();
+
         return panel;
+    }
+
+    private void refreshLoansTable() {
+        if (loansTableModel == null) {
+            return;
+        }
+
+        loansTableModel.setRowCount(0);
+
+        for (Loan loan : library.getLoans()) {
+            Object[] row = {
+                    loan.getMaterial().getCode(),
+                    loan.getMaterial().getTitle(),
+                    loan.getUser().getCarnet(),
+                    loan.getUser().getName()
+            };
+
+            loansTableModel.addRow(row);
+        }
     }
 
     private JPanel createBasePanel(String title) {
@@ -149,8 +164,6 @@ public class MainFrame extends JFrame {
 
     private void addButtons(JPanel panel, JButton... buttons) {
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 1;
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.ipadx = 40;
@@ -162,14 +175,19 @@ public class MainFrame extends JFrame {
 
             gbc.gridx = i % 2;
             gbc.gridy = 1 + (i / 2);
+
             panel.add(button, gbc);
         }
     }
 
     private void showMessage(String message) {
-        JOptionPane.showMessageDialog(this, message, "Biblioteca 2.0", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(
+                this,
+                message,
+                "Biblioteca 2.0",
+                JOptionPane.INFORMATION_MESSAGE
+        );
     }
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -179,5 +197,3 @@ public class MainFrame extends JFrame {
         });
     }
 }
-
-// dadioio

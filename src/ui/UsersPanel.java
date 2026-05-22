@@ -31,7 +31,6 @@ public class UsersPanel extends JPanel {
     private JTextField loanLimitField;
     private JTextField searchField;
 
-    private JTable usersTable;
     private DefaultTableModel tableModel;
 
     public UsersPanel(Library library) {
@@ -97,28 +96,23 @@ public class UsersPanel extends JPanel {
         addLabelAndField(panel, gbc, row++, "Limite prestamos:", loanLimitField);
 
         gbc.gridx = 0;
-        gbc.gridy = row;
+        gbc.gridy = row++;
         gbc.gridwidth = 2;
         panel.add(new JLabel("Buscar por carnet:"), gbc);
 
-        row++;
-        gbc.gridy = row;
+        gbc.gridy = row++;
         panel.add(searchField, gbc);
 
-        row++;
-        gbc.gridy = row;
+        gbc.gridy = row++;
         panel.add(registerButton, gbc);
 
-        row++;
-        gbc.gridy = row;
+        gbc.gridy = row++;
         panel.add(searchButton, gbc);
 
-        row++;
-        gbc.gridy = row;
+        gbc.gridy = row++;
         panel.add(showAllButton, gbc);
 
-        row++;
-        gbc.gridy = row;
+        gbc.gridy = row++;
         panel.add(clearButton, gbc);
 
         return panel;
@@ -135,13 +129,7 @@ public class UsersPanel extends JPanel {
     }
 
     private JScrollPane createTablePanel() {
-        String[] columns = {
-                "Carnet",
-                "Nombre",
-                "Limite",
-                "Prestamos activos",
-                "Puede prestar"
-        };
+        String[] columns = { "Carnet", "Nombre", "Limite", "Prestamos activos", "Puede prestar" };
 
         tableModel = new DefaultTableModel(columns, 0) {
             private static final long serialVersionUID = 1L;
@@ -152,7 +140,7 @@ public class UsersPanel extends JPanel {
             }
         };
 
-        usersTable = new JTable(tableModel);
+        JTable usersTable = new JTable(tableModel);
         usersTable.setFillsViewportHeight(true);
         usersTable.setRowHeight(24);
 
