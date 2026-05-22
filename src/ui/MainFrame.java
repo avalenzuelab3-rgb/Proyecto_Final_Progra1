@@ -67,8 +67,13 @@ public class MainFrame extends JFrame {
         JTabbedPane tabs = new JTabbedPane();
 
         tabs.addTab("Catalogo", new CatalogPanel(library));
+<<<<<<< Updated upstream
         tabs.addTab("Usuarios", createUsersPanel());
         tabs.addTab("Operaciones", createOperationsPanel());
+=======
+        tabs.addTab("Usuarios", new UsersPanel(library));
+        tabs.addTab("Operaciones", new OperationsPanel(library));
+>>>>>>> Stashed changes
         tabs.addTab("Prestamos activos", createLoansPanel());
 
         return tabs;
