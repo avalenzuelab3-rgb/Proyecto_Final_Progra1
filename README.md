@@ -132,36 +132,6 @@ Contiene clases auxiliares.
 
 ---
 
-## Funcionamiento general del sistema
-
-```mermaid
-flowchart TD
-
-A[Main.java] --> B[Library]
-A --> C[MainFrame]
-
-C --> D[CatalogPanel]
-C --> E[UsersPanel]
-C --> F[OperationsPanel]
-
-D --> G[ValidationUtils]
-E --> G
-F --> G
-
-D --> B
-E --> B
-F --> B
-
-B --> H[Material]
-B --> I[User]
-B --> J[Loan]
-
-H --> K[Book]
-H --> L[Magazine]
-```
-
----
-
 ## Flujo de uso
 
 ### Registrar material
