@@ -118,12 +118,12 @@ public class Loan {
                 ", dueDate=" + dueDate +
                 ", status=" + getStatus() +
                 '}';
-    }
-    
+        
+	}
     /*
      * sndjanscn
      * najdcnkjnskj
      * asnkjcnkj
      */
-     */
+     
 }
