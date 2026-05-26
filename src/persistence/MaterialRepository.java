@@ -10,7 +10,6 @@ import domain.Material;
 public class MaterialRepository {
 
     private static final String FILE_NAME = "materials.csv";
-
     private CsvFileManager csvFileManager;
 
     public MaterialRepository() {
@@ -24,24 +23,24 @@ public class MaterialRepository {
             if (material instanceof Book) {
                 Book book = (Book) material;
 
-                lines.add("BOOK;" +
-                        book.getCode() + ";" +
-                        book.getTitle() + ";" +
-                        book.getAutor() + ";" +
-                        book.getPages() + ";" +
-                        book.getYear() + ";" +
-                        book.isAvailable());
+                lines.add("BOOK,"
+                        + book.getCode() + ","
+                        + book.getTitle() + ","
+                        + book.getAutor() + ","
+                        + book.getPages() + ","
+                        + book.getYear() + ","
+                        + book.isAvailable());
 
             } else if (material instanceof Magazine) {
                 Magazine magazine = (Magazine) material;
 
-                lines.add("MAGAZINE;" +
-                        magazine.getCode() + ";" +
-                        magazine.getTitle() + ";" +
-                        magazine.getEditionNumber() + ";" +
-                        magazine.getPages() + ";" +
-                        magazine.getYear() + ";" +
-                        magazine.isAvailable());
+                lines.add("MAGAZINE,"
+                        + magazine.getCode() + ","
+                        + magazine.getTitle() + ","
+                        + magazine.getEditionNumber() + ","
+                        + magazine.getPages() + ","
+                        + magazine.getYear() + ","
+                        + magazine.isAvailable());
             }
         }
 
@@ -58,7 +57,7 @@ public class MaterialRepository {
             }
 
             try {
-                String[] data = line.split(";");
+                String[] data = line.split("[;,]");
 
                 if (data[0].equals("BOOK")) {
                     int code = Integer.parseInt(data[1]);

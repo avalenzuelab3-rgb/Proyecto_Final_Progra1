@@ -1,2 +1,3 @@
-BOOK;1;Libro de prueba;Autor prueba;100;2026;false
-BOOK;121;sdsd;wds;3434;2000;true
+BOOK,1,Libro de prueba,Autor prueba,100,2026,false
+BOOK,121,sdsd,wds,3434,2000,true
+BOOK,12133,prueba,Prueba,232,2093,true

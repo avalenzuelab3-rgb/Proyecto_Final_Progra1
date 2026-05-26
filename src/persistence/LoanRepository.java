@@ -9,7 +9,6 @@ import domain.Loan;
 public class LoanRepository {
 
     private static final String FILE_NAME = "loans.csv";
-
     private CsvFileManager csvFileManager;
 
     public LoanRepository() {
@@ -20,8 +19,8 @@ public class LoanRepository {
         List<String> lines = new ArrayList<String>();
 
         for (Loan loan : loans) {
-            lines.add(loan.getMaterial().getCode() + ";" +
-                    loan.getUser().getCarnet());
+            lines.add(loan.getMaterial().getCode() + ","
+                    + loan.getUser().getCarnet());
         }
 
         csvFileManager.writeAllLines(FILE_NAME, lines);
@@ -36,7 +35,7 @@ public class LoanRepository {
             }
 
             try {
-                String[] data = line.split(";");
+                String[] data = line.split("[;,]");
 
                 int materialCode = Integer.parseInt(data[0]);
                 String userCarnet = data[1];
