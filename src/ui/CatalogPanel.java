@@ -39,6 +39,7 @@ import domain.Book;
 import domain.Library;
 import domain.Magazine;
 import domain.Material;
+import persistence.PersistenceService;
 
 public class CatalogPanel extends JPanel {
 
@@ -171,6 +172,7 @@ public class CatalogPanel extends JPanel {
         yearField = new PlaceholderTextField("Ingrese año");
         pagesField = new PlaceholderTextField("Ingrese páginas");
         extraField = new PlaceholderTextField("Ingrese autor");
+
         typeComboBox = new JComboBox<String>(new String[] { "Libro", "Revista" });
         typeComboBox.setFont(new Font("Arial", Font.PLAIN, 14));
         typeComboBox.setBackground(Color.WHITE);
@@ -200,6 +202,7 @@ public class CatalogPanel extends JPanel {
         fieldsScrollPane.setOpaque(false);
         fieldsScrollPane.getViewport().setOpaque(false);
         fieldsScrollPane.getVerticalScrollBar().setUnitIncrement(14);
+
         card.add(fieldsScrollPane, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 0));
@@ -351,6 +354,7 @@ public class CatalogPanel extends JPanel {
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
         );
+
         scrollPane.setBorder(new RoundedBorder(BORDER_COLOR, 1, 14));
         scrollPane.getViewport().setBackground(Color.WHITE);
         scrollPane.setPreferredSize(new Dimension(620, 300));
@@ -446,6 +450,7 @@ public class CatalogPanel extends JPanel {
     private void registerMaterial() {
         try {
             String type = (String) typeComboBox.getSelectedItem();
+
             int code = readPositiveInt(codeField, "código");
             String title = readRequiredText(titleField, "título");
             int year = readValidYear(yearField);
@@ -468,6 +473,9 @@ public class CatalogPanel extends JPanel {
             }
 
             library.registerMaterial(material);
+
+            new PersistenceService().saveMaterials(library);
+
             refreshTable();
             clearFields();
 
@@ -477,6 +485,7 @@ public class CatalogPanel extends JPanel {
                     "Biblioteca 2.0",
                     JOptionPane.INFORMATION_MESSAGE
             );
+
         } catch (IllegalArgumentException ex) {
             showError(ex.getMessage());
         }
@@ -619,6 +628,7 @@ public class CatalogPanel extends JPanel {
 
         public PlaceholderTextField(String placeholder) {
             this.placeholder = placeholder;
+
             setFont(new Font("Arial", Font.PLAIN, 15));
             setForeground(TEXT_COLOR);
             setBackground(Color.WHITE);
@@ -628,6 +638,7 @@ public class CatalogPanel extends JPanel {
             ));
             setPreferredSize(new Dimension(230, 38));
             setMinimumSize(new Dimension(180, 38));
+
             addFocusListener(new FocusAdapter() {
                 @Override
                 public void focusGained(FocusEvent e) {
@@ -655,8 +666,11 @@ public class CatalogPanel extends JPanel {
                 graphics2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
                 graphics2D.setColor(new Color(142, 151, 169));
                 graphics2D.setFont(getFont());
+
                 Insets insets = getInsets();
-                graphics2D.drawString(placeholder, insets.left, getHeight() / 2 + graphics2D.getFontMetrics().getAscent() / 2 - 3);
+                int y = getHeight() / 2 + graphics2D.getFontMetrics().getAscent() / 2 - 3;
+
+                graphics2D.drawString(placeholder, insets.left, y);
                 graphics2D.dispose();
             }
         }
@@ -691,7 +705,14 @@ public class CatalogPanel extends JPanel {
             graphics2D.setColor(color);
 
             for (int i = 0; i < thickness; i++) {
-                graphics2D.drawRoundRect(x + i, y + i, width - 1 - i - i, height - 1 - i - i, radius, radius);
+                graphics2D.drawRoundRect(
+                        x + i,
+                        y + i,
+                        width - 1 - i - i,
+                        height - 1 - i - i,
+                        radius,
+                        radius
+                );
             }
 
             graphics2D.dispose();

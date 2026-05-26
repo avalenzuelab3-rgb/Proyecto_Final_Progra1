@@ -60,9 +60,7 @@ public class MaterialRepository {
             try {
                 String[] data = line.split(";");
 
-                String type = data[0];
-
-                if (type.equals("BOOK")) {
+                if (data[0].equals("BOOK")) {
                     int code = Integer.parseInt(data[1]);
                     String title = data[2];
                     String author = data[3];
@@ -72,7 +70,7 @@ public class MaterialRepository {
 
                     materials.add(new Book(title, author, pages, code, year, available));
 
-                } else if (type.equals("MAGAZINE")) {
+                } else if (data[0].equals("MAGAZINE")) {
                     int code = Integer.parseInt(data[1]);
                     String title = data[2];
                     int editionNumber = Integer.parseInt(data[3]);

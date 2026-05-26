@@ -32,7 +32,7 @@ public class CsvFileManager {
                     StandardOpenOption.TRUNCATE_EXISTING
             );
         } catch (IOException e) {
-            System.err.println("Error al escribir archivo " + fileName + ": " + e.getMessage());
+            System.err.println("Error al escribir " + fileName + ": " + e.getMessage());
         }
     }
 
@@ -49,7 +49,7 @@ public class CsvFileManager {
             return Files.readAllLines(filePath, StandardCharsets.UTF_8);
 
         } catch (IOException e) {
-            System.err.println("Error al leer archivo " + fileName + ": " + e.getMessage());
+            System.err.println("Error al leer " + fileName + ": " + e.getMessage());
             return new ArrayList<String>();
         }
     }

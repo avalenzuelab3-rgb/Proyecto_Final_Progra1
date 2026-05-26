@@ -3,11 +3,7 @@ package app;
 import javax.swing.SwingUtilities;
 
 import domain.Library;
-import domain.Material;
-import domain.User;
-import persistence.LoanRepository;
-import persistence.MaterialRepository;
-import persistence.UserRepository;
+import persistence.PersistenceService;
 import ui.MainFrame;
 
 public class Main {
@@ -18,25 +14,9 @@ public class Main {
 
             Library library = new Library();
 
-            // Repositories
-            MaterialRepository materialRepository = new MaterialRepository();
-            UserRepository userRepository = new UserRepository();
-            LoanRepository loanRepository = new LoanRepository();
+            PersistenceService persistenceService = new PersistenceService();
+            persistenceService.loadAll(library);
 
-            // CARGAR MATERIALES
-            for (Material material : materialRepository.loadMaterials()) {
-                library.registerMaterial(material);
-            }
-
-            // CARGAR USUARIOS
-            for (User user : userRepository.loadUsers()) {
-                library.registerUser(user);
-            }
-
-            // CARGAR PRESTAMOS
-            loanRepository.loadLoans(library);
-
-            // ABRIR UI
             MainFrame mainFrame = new MainFrame(library);
             mainFrame.setVisible(true);
         });
