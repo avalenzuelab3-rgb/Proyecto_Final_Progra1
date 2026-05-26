@@ -2,10 +2,8 @@ package persistence;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CsvFileManager {
@@ -20,7 +18,7 @@ public class CsvFileManager {
         }
     }
 
-    public void writeLine(String fileName, String line) {
+    public void writeAllLines(String fileName, List<String> lines) {
         createCsvFolder();
 
         Path filePath = Paths.get(CSV_FOLDER, fileName);
@@ -28,38 +26,31 @@ public class CsvFileManager {
         try {
             Files.write(
                     filePath,
-                    (line + System.lineSeparator()).getBytes(StandardCharsets.UTF_8),
+                    lines,
+                    StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING
             );
-
-            System.out.println("Archivo escrito: " + filePath.toAbsolutePath());
-
         } catch (IOException e) {
-            System.err.println("Error al escribir archivo " + fileName + ": " + e.getMessage());
+            System.err.println("Error al escribir " + fileName + ": " + e.getMessage());
         }
     }
 
-    public String readFirstLine(String fileName) {
+    public List<String> readAllLines(String fileName) {
+        createCsvFolder();
+
         Path filePath = Paths.get(CSV_FOLDER, fileName);
 
         try {
             if (!Files.exists(filePath)) {
-                System.err.println("El archivo no existe: " + filePath.toAbsolutePath());
-                return null;
+                return new ArrayList<String>();
             }
 
-            List<String> lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
-
-            if (lines.isEmpty()) {
-                return null;
-            }
-
-            return lines.get(0);
+            return Files.readAllLines(filePath, StandardCharsets.UTF_8);
 
         } catch (IOException e) {
-            System.err.println("Error al leer archivo " + fileName + ": " + e.getMessage());
-            return null;
+            System.err.println("Error al leer " + fileName + ": " + e.getMessage());
+            return new ArrayList<String>();
         }
     }
 }

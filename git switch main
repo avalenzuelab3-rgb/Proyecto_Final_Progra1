@@ -1,0 +1,33 @@
+[33m2551766[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m fix: Percistencia
+[33mcf41eaf[m feat: percistencia
+[33me6cc1cc[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m feat: seleccion en OperationsPanel
+[33mcfd21fa[m fix: Paquete ui
+[33m87897ce[m Merge pull request #10 from avalenzuelab3-rgb/develop
+[33m64a77a0[m[33m ([m[1;31morigin/develop[m[33m)[m Merge branch 'develop' of github.com:avalenzuelab3-rgb/Proyecto_Final_Progra1 into develop
+[33mecc99cb[m feat: Paquete ui completado
+[33m92a0c1b[m docs: Quitando diagrama que no se ve
+[33m8ec74b0[m docs: Creando README del proyecto
+[33madb66b9[m Merge pull request #7 from avalenzuelab3-rgb/feature/catalog-panel
+[33mf929490[m[33m ([m[1;31morigin/feature/catalog-panel[m[33m)[m fix: Clase Catalog Panel
+[33m1ff4933[m feat: Crea panel de catalogo
+[33m42d4077[m feat:crearrama
+[33m7da7936[m Merge pull request #8 from avalenzuelab3-rgb/feature/operations-panel
+[33m1baba8c[m feat:crearrama
+[33m2927992[m Merge pull request #6 from avalenzuelab3-rgb/feature/library-logic
+[33m3f3175f[m feat: Muestra datos de prueba en consola desde Main
+[33m2dcd137[m[33m ([m[1;31morigin/feature/library-logic[m[33m)[m feat: Agrega estructura inicial de persistencia
+[33mcc8cf36[m Merge branch 'develop' into feature/library-logic 	# the commit.
+[33ma382e04[m Prueba
+[33mbd992fb[m prueva me
+[33m9e8af11[m refactor: añadiendo archivos nuevamente
+[33m6783ed1[m fix: Restaura proyecto completo en develop
+[33ma432d7d[m Merge pull request #5 from avalenzuelab3-rgb/feature/library-logic
+[33m4ff12c8[m refactor: Aprendiendo a subir unicamente unos archivos
+[33mef6a37e[m[33m ([m[1;31morigin/feature/domain-rewiew[m[33m)[m Fix: clase Library y añadir una clase al paquete pesistence
+[33m2e90eff[m feat:Mainframe
+[33maf62964[m Feat
+[33mdccc8be[m Merge pull request #2 from avalenzuelab3-rgb/feature/domain-rewiew
+[33m3b120a8[m feat: avanzando con las clases dominio
+[33mdef2746[m build: Alpha version
+[33m5eb484e[m feat: agregar proyecto al repositorio
+[33m1b8eb83[m Initial commit
