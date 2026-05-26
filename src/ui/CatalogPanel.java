@@ -1,10 +1,20 @@
 package ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.RenderingHints;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -14,9 +24,16 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 
 import domain.Book;
 import domain.Library;
@@ -27,16 +44,26 @@ public class CatalogPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
+    private static final Color BACKGROUND_COLOR = new Color(245, 248, 252);
+    private static final Color CARD_COLOR = Color.WHITE;
+    private static final Color PRIMARY_COLOR = new Color(45, 94, 166);
+    private static final Color PRIMARY_DARK_COLOR = new Color(31, 73, 135);
+    private static final Color LIGHT_BUTTON_COLOR = new Color(223, 236, 251);
+    private static final Color TEXT_COLOR = new Color(24, 30, 40);
+    private static final Color MUTED_TEXT_COLOR = new Color(93, 106, 126);
+    private static final Color BORDER_COLOR = new Color(197, 209, 226);
+    private static final Color TABLE_HEADER_COLOR = new Color(219, 234, 252);
+
     private Library library;
 
     private JComboBox<String> typeComboBox;
-    private JTextField codeField;
-    private JTextField titleField;
-    private JTextField yearField;
-    private JTextField pagesField;
-    private JTextField extraField;
+    private PlaceholderTextField codeField;
+    private PlaceholderTextField titleField;
+    private PlaceholderTextField yearField;
+    private PlaceholderTextField pagesField;
+    private PlaceholderTextField extraField;
+    private PlaceholderTextField searchField;
     private JLabel extraLabel;
-    private JTextField searchField;
 
     private JTable materialsTable;
     private DefaultTableModel tableModel;
@@ -44,106 +71,237 @@ public class CatalogPanel extends JPanel {
     public CatalogPanel(Library library) {
         this.library = library;
 
-        setLayout(new BorderLayout(15, 15));
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        setLayout(new BorderLayout());
+        setBackground(BACKGROUND_COLOR);
 
         initComponents();
         refreshTable();
     }
 
     private void initComponents() {
-        add(createTitlePanel(), BorderLayout.NORTH);
-        add(createFormPanel(), BorderLayout.WEST);
-        add(createTablePanel(), BorderLayout.CENTER);
-        add(createSearchPanel(), BorderLayout.SOUTH);
+        add(createHeaderPanel(), BorderLayout.NORTH);
+        add(createContentScrollPane(), BorderLayout.CENTER);
     }
 
-    private JPanel createTitlePanel() {
-        JPanel panel = new JPanel(new BorderLayout());
+    private JScrollPane createContentScrollPane() {
+        JScrollPane scrollPane = new JScrollPane(
+                createMainPanel(),
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
+        );
 
-        JLabel titleLabel = new JLabel("Catalogo de materiales");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 22));
+        scrollPane.setBorder(null);
+        scrollPane.setBackground(BACKGROUND_COLOR);
+        scrollPane.getViewport().setBackground(BACKGROUND_COLOR);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(18);
+        scrollPane.getHorizontalScrollBar().setUnitIncrement(18);
 
-        panel.add(titleLabel, BorderLayout.WEST);
-
-        return panel;
+        return scrollPane;
     }
 
-    private JPanel createFormPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("Registrar material"));
+    private JPanel createHeaderPanel() {
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(CARD_COLOR);
+        headerPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, BORDER_COLOR),
+                BorderFactory.createEmptyBorder(18, 28, 16, 28)
+        ));
+
+        JLabel titleLabel = new JLabel("Panel Catálogo");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
+        titleLabel.setForeground(TEXT_COLOR);
+
+        JLabel subtitleLabel = new JLabel("CatalogPanel.java - Registrar y listar libros/revistas");
+        subtitleLabel.setFont(new Font("Arial", Font.PLAIN, 15));
+        subtitleLabel.setForeground(MUTED_TEXT_COLOR);
+
+        JPanel textPanel = new JPanel(new BorderLayout(0, 4));
+        textPanel.setOpaque(false);
+        textPanel.add(titleLabel, BorderLayout.NORTH);
+        textPanel.add(subtitleLabel, BorderLayout.SOUTH);
+
+        headerPanel.add(textPanel, BorderLayout.WEST);
+
+        return headerPanel;
+    }
+
+    private JPanel createMainPanel() {
+        JPanel mainPanel = new JPanel(new GridBagLayout());
+        mainPanel.setBackground(BACKGROUND_COLOR);
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(22, 24, 22, 24));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 6, 6, 6);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.WEST;
-
-        typeComboBox = new JComboBox<String>(new String[] { "Libro", "Revista" });
-        codeField = new JTextField(15);
-        titleField = new JTextField(15);
-        yearField = new JTextField(15);
-        pagesField = new JTextField(15);
-        extraField = new JTextField(15);
-        extraLabel = new JLabel("Autor:");
-
-        typeComboBox.addActionListener(e -> updateExtraLabel());
-
-        addFormRow(panel, gbc, 0, "Tipo:", typeComboBox);
-        addFormRow(panel, gbc, 1, "Codigo:", codeField);
-        addFormRow(panel, gbc, 2, "Titulo:", titleField);
-        addFormRow(panel, gbc, 3, "Anio:", yearField);
-        addFormRow(panel, gbc, 4, "Paginas:", pagesField);
-        addFormRow(panel, gbc, 5, extraLabel, extraField);
-
-        JButton saveButton = new JButton("Registrar");
-        JButton clearButton = new JButton("Limpiar");
-        JButton refreshButton = new JButton("Actualizar tabla");
-
-        saveButton.addActionListener(e -> registerMaterial());
-        clearButton.addActionListener(e -> clearFields());
-        refreshButton.addActionListener(e -> refreshTable());
+        gbc.gridy = 0;
+        gbc.insets = new Insets(0, 0, 0, 24);
+        gbc.fill = GridBagConstraints.BOTH;
 
         gbc.gridx = 0;
+        gbc.weightx = 0.36;
+        gbc.weighty = 1.0;
+        mainPanel.add(createFormCard(), gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 0.64;
+        gbc.insets = new Insets(0, 0, 0, 0);
+        mainPanel.add(createListCard(), gbc);
+
+        return mainPanel;
+    }
+
+    private JPanel createFormCard() {
+        JPanel card = createCardPanel();
+        card.setLayout(new BorderLayout(0, 16));
+        card.setPreferredSize(new Dimension(430, 480));
+        card.setMinimumSize(new Dimension(350, 420));
+
+        JLabel titleLabel = createCardTitle("Formulario de material");
+        card.add(titleLabel, BorderLayout.NORTH);
+
+        JPanel fieldsPanel = new JPanel(new GridBagLayout());
+        fieldsPanel.setOpaque(false);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.weightx = 1.0;
+
+        codeField = new PlaceholderTextField("Ingrese código");
+        titleField = new PlaceholderTextField("Ingrese título");
+        yearField = new PlaceholderTextField("Ingrese año");
+        pagesField = new PlaceholderTextField("Ingrese páginas");
+        extraField = new PlaceholderTextField("Ingrese autor");
+        typeComboBox = new JComboBox<String>(new String[] { "Libro", "Revista" });
+        typeComboBox.setFont(new Font("Arial", Font.PLAIN, 14));
+        typeComboBox.setBackground(Color.WHITE);
+        typeComboBox.setPreferredSize(new Dimension(230, 38));
+        typeComboBox.setMinimumSize(new Dimension(180, 38));
+        typeComboBox.addActionListener(e -> updateExtraField());
+
+        extraLabel = createFieldLabel("Autor");
+
+        addField(fieldsPanel, gbc, 0, "Código", codeField);
+        addField(fieldsPanel, gbc, 1, "Título", titleField);
+        addField(fieldsPanel, gbc, 2, "Año", yearField);
+        addField(fieldsPanel, gbc, 3, "Páginas", pagesField);
+        addField(fieldsPanel, gbc, 4, extraLabel, extraField);
+        addField(fieldsPanel, gbc, 5, "Tipo de material", typeComboBox);
+
         gbc.gridy = 6;
-        gbc.gridwidth = 2;
-        panel.add(saveButton, gbc);
+        gbc.weighty = 1.0;
+        fieldsPanel.add(new JLabel(), gbc);
 
-        gbc.gridy = 7;
-        panel.add(clearButton, gbc);
+        JScrollPane fieldsScrollPane = new JScrollPane(
+                fieldsPanel,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
+        );
+        fieldsScrollPane.setBorder(null);
+        fieldsScrollPane.setOpaque(false);
+        fieldsScrollPane.getViewport().setOpaque(false);
+        fieldsScrollPane.getVerticalScrollBar().setUnitIncrement(14);
+        card.add(fieldsScrollPane, BorderLayout.CENTER);
 
-        gbc.gridy = 8;
-        panel.add(refreshButton, gbc);
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 0));
+        buttonPanel.setOpaque(false);
+
+        JButton registerButton = createPrimaryButton("Registrar");
+        JButton clearButton = createLightButton("Limpiar");
+
+        registerButton.addActionListener(e -> registerMaterial());
+        clearButton.addActionListener(e -> clearFields());
+
+        buttonPanel.add(registerButton);
+        buttonPanel.add(clearButton);
+
+        card.add(buttonPanel, BorderLayout.SOUTH);
+
+        return card;
+    }
+
+    private JPanel createListCard() {
+        JPanel card = createCardPanel();
+        card.setLayout(new GridBagLayout());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.weightx = 1.0;
+
+        JLabel titleLabel = createCardTitle("Listado de materiales");
+        gbc.gridy = 0;
+        gbc.insets = new Insets(0, 0, 28, 0);
+        card.add(titleLabel, gbc);
+
+        JPanel searchPanel = createSearchPanel();
+        gbc.gridy = 1;
+        gbc.insets = new Insets(0, 0, 26, 0);
+        card.add(searchPanel, gbc);
+
+        JScrollPane tableScrollPane = createTablePanel();
+        gbc.gridy = 2;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weighty = 1.0;
+        gbc.insets = new Insets(0, 0, 20, 0);
+        card.add(tableScrollPane, gbc);
+
+        JLabel validationLabel = new JLabel("Validaciones: código duplicado, campos vacíos, año inválido, páginas inválidas.");
+        validationLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        validationLabel.setForeground(MUTED_TEXT_COLOR);
+
+        gbc.gridy = 3;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weighty = 0.0;
+        gbc.insets = new Insets(0, 0, 0, 0);
+        card.add(validationLabel, gbc);
+
+        return card;
+    }
+
+    private JPanel createSearchPanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setOpaque(false);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 3;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(0, 0, 8, 0);
+        gbc.weightx = 1.0;
+        panel.add(createFieldLabel("Buscar por código o título"), gbc);
+
+        searchField = new PlaceholderTextField("Ingrese buscar por código o título");
+        JButton searchButton = createPrimaryButton("Buscar");
+        JButton showAllButton = createLightButton("Mostrar todos");
+
+        searchButton.addActionListener(e -> searchMaterial());
+        showAllButton.addActionListener(e -> {
+            searchField.setText("");
+            refreshTable();
+        });
+
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        gbc.gridx = 0;
+        gbc.weightx = 1.0;
+        gbc.insets = new Insets(0, 0, 0, 12);
+        panel.add(searchField, gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 0.0;
+        panel.add(searchButton, gbc);
+
+        gbc.gridx = 2;
+        gbc.insets = new Insets(0, 0, 0, 0);
+        panel.add(showAllButton, gbc);
 
         return panel;
     }
 
-    private void addFormRow(JPanel panel, GridBagConstraints gbc, int row, String label, java.awt.Component field) {
-        gbc.gridx = 0;
-        gbc.gridy = row;
-        gbc.gridwidth = 1;
-        panel.add(new JLabel(label), gbc);
-
-        gbc.gridx = 1;
-        panel.add(field, gbc);
-    }
-
-    private void addFormRow(JPanel panel, GridBagConstraints gbc, int row, JLabel label, java.awt.Component field) {
-        gbc.gridx = 0;
-        gbc.gridy = row;
-        gbc.gridwidth = 1;
-        panel.add(label, gbc);
-
-        gbc.gridx = 1;
-        panel.add(field, gbc);
-    }
-
-    private JPanel createTablePanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("Materiales registrados"));
-
-        String[] columns = {
-            "Tipo", "Codigo", "Titulo", "Anio", "Paginas", "Detalle", "Disponible", "Dias prestamo"
-        };
+    private JScrollPane createTablePanel() {
+        String[] columns = { "Código", "Título", "Tipo", "Año", "Páginas", "Detalle", "Disponible" };
 
         tableModel = new DefaultTableModel(columns, 0) {
             private static final long serialVersionUID = 1L;
@@ -155,46 +313,131 @@ public class CatalogPanel extends JPanel {
         };
 
         materialsTable = new JTable(tableModel);
+        materialsTable.setFont(new Font("Arial", Font.PLAIN, 14));
+        materialsTable.setRowHeight(38);
+        materialsTable.setShowVerticalLines(false);
+        materialsTable.setGridColor(BORDER_COLOR);
+        materialsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         materialsTable.setAutoCreateRowSorter(true);
+        materialsTable.setFillsViewportHeight(true);
+        materialsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-        panel.add(new JScrollPane(materialsTable), BorderLayout.CENTER);
+        JTableHeader header = materialsTable.getTableHeader();
+        header.setFont(new Font("Arial", Font.BOLD, 14));
+        header.setForeground(PRIMARY_COLOR);
+        header.setBackground(TABLE_HEADER_COLOR);
+        header.setPreferredSize(new Dimension(header.getWidth(), 42));
+        header.setReorderingAllowed(false);
+
+        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
+        renderer.setBorder(new EmptyBorder(0, 14, 0, 14));
+        renderer.setForeground(MUTED_TEXT_COLOR);
+        renderer.setHorizontalAlignment(SwingConstants.LEFT);
+
+        for (int i = 0; i < materialsTable.getColumnCount(); i++) {
+            materialsTable.getColumnModel().getColumn(i).setCellRenderer(renderer);
+        }
+
+        materialsTable.getColumnModel().getColumn(0).setPreferredWidth(95);
+        materialsTable.getColumnModel().getColumn(1).setPreferredWidth(210);
+        materialsTable.getColumnModel().getColumn(2).setPreferredWidth(100);
+        materialsTable.getColumnModel().getColumn(3).setPreferredWidth(85);
+        materialsTable.getColumnModel().getColumn(4).setPreferredWidth(95);
+        materialsTable.getColumnModel().getColumn(5).setPreferredWidth(190);
+        materialsTable.getColumnModel().getColumn(6).setPreferredWidth(110);
+
+        JScrollPane scrollPane = new JScrollPane(
+                materialsTable,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
+        );
+        scrollPane.setBorder(new RoundedBorder(BORDER_COLOR, 1, 14));
+        scrollPane.getViewport().setBackground(Color.WHITE);
+        scrollPane.setPreferredSize(new Dimension(620, 300));
+        scrollPane.setMinimumSize(new Dimension(420, 220));
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
+
+        return scrollPane;
+    }
+
+    private JPanel createCardPanel() {
+        JPanel panel = new JPanel();
+        panel.setBackground(CARD_COLOR);
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                new RoundedBorder(BORDER_COLOR, 1, 16),
+                BorderFactory.createEmptyBorder(24, 30, 24, 30)
+        ));
 
         return panel;
     }
 
-    private JPanel createSearchPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createTitledBorder("Buscar material"));
-
-        searchField = new JTextField();
-        JButton searchButton = new JButton("Buscar");
-        JButton showAllButton = new JButton("Mostrar todos");
-
-        searchButton.addActionListener(e -> searchMaterial());
-
-        showAllButton.addActionListener(e -> {
-            searchField.setText("");
-            refreshTable();
-        });
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(searchButton);
-        buttonPanel.add(showAllButton);
-
-        panel.add(new JLabel("Codigo o titulo:"), BorderLayout.WEST);
-        panel.add(searchField, BorderLayout.CENTER);
-        panel.add(buttonPanel, BorderLayout.EAST);
-
-        return panel;
+    private JLabel createCardTitle(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Arial", Font.BOLD, 23));
+        label.setForeground(TEXT_COLOR);
+        return label;
     }
 
-    private void updateExtraLabel() {
+    private JLabel createFieldLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Arial", Font.BOLD, 14));
+        label.setForeground(MUTED_TEXT_COLOR);
+        return label;
+    }
+
+    private void addField(JPanel panel, GridBagConstraints gbc, int row, String labelText, Component field) {
+        addField(panel, gbc, row, createFieldLabel(labelText), field);
+    }
+
+    private void addField(JPanel panel, GridBagConstraints gbc, int row, JLabel label, Component field) {
+        JPanel wrapper = new JPanel(new BorderLayout(0, 8));
+        wrapper.setOpaque(false);
+        wrapper.add(label, BorderLayout.NORTH);
+        wrapper.add(field, BorderLayout.CENTER);
+
+        gbc.gridy = row;
+        gbc.insets = new Insets(0, 0, 12, 0);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        gbc.weighty = 0.0;
+        panel.add(wrapper, gbc);
+    }
+
+    private JButton createPrimaryButton(String text) {
+        JButton button = createBaseButton(text);
+        button.setBackground(PRIMARY_COLOR);
+        button.setForeground(Color.WHITE);
+        return button;
+    }
+
+    private JButton createLightButton(String text) {
+        JButton button = createBaseButton(text);
+        button.setBackground(LIGHT_BUTTON_COLOR);
+        button.setForeground(PRIMARY_DARK_COLOR);
+        return button;
+    }
+
+    private JButton createBaseButton(String text) {
+        JButton button = new JButton(text);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setOpaque(true);
+        button.setFont(new Font("Arial", Font.BOLD, 15));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setPreferredSize(new Dimension(132, 40));
+        return button;
+    }
+
+    private void updateExtraField() {
         String selectedType = (String) typeComboBox.getSelectedItem();
 
         if ("Libro".equals(selectedType)) {
-            extraLabel.setText("Autor:");
+            extraLabel.setText("Autor");
+            extraField.setPlaceholder("Ingrese autor");
         } else {
-            extraLabel.setText("No. edicion:");
+            extraLabel.setText("Edición");
+            extraField.setPlaceholder("Ingrese número de edición");
         }
 
         extraField.setText("");
@@ -203,14 +446,14 @@ public class CatalogPanel extends JPanel {
     private void registerMaterial() {
         try {
             String type = (String) typeComboBox.getSelectedItem();
-
-            int code = readPositiveInt(codeField, "codigo");
-            String title = readRequiredText(titleField, "titulo");
-            int year = readPositiveInt(yearField, "anio");
-            int pages = readPositiveInt(pagesField, "paginas");
+            int code = readPositiveInt(codeField, "código");
+            String title = readRequiredText(titleField, "título");
+            int year = readValidYear(yearField);
+            int pages = readPositiveInt(pagesField, "páginas");
 
             if (library.findMaterialByCode(code) != null) {
-                showError("Ya existe un material con ese codigo.");
+                showError("Ya existe un material registrado con ese código.");
+                codeField.requestFocus();
                 return;
             }
 
@@ -220,17 +463,20 @@ public class CatalogPanel extends JPanel {
                 String author = readRequiredText(extraField, "autor");
                 material = new Book(title, author, pages, code, year, true);
             } else {
-                int editionNumber = readPositiveInt(extraField, "numero de edicion");
+                int editionNumber = readPositiveInt(extraField, "número de edición");
                 material = new Magazine(title, editionNumber, code, year, true, pages);
             }
 
             library.registerMaterial(material);
-
             refreshTable();
             clearFields();
 
-            JOptionPane.showMessageDialog(this, "Material registrado correctamente.");
-
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Material registrado correctamente.",
+                    "Biblioteca 2.0",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
         } catch (IllegalArgumentException ex) {
             showError(ex.getMessage());
         }
@@ -247,14 +493,23 @@ public class CatalogPanel extends JPanel {
         tableModel.setRowCount(0);
 
         List<Material> materials = library.getMaterials();
-
         for (Material material : materials) {
             String code = String.valueOf(material.getCode());
             String title = material.getTitle().toLowerCase();
+            String type = getMaterialType(material).toLowerCase();
 
-            if (code.contains(text) || title.contains(text)) {
+            if (code.contains(text) || title.contains(text) || type.contains(text)) {
                 addMaterialToTable(material);
             }
+        }
+
+        if (tableModel.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No se encontraron materiales con ese dato.",
+                    "Búsqueda sin resultados",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
         }
     }
 
@@ -262,7 +517,6 @@ public class CatalogPanel extends JPanel {
         tableModel.setRowCount(0);
 
         List<Material> materials = library.getMaterials();
-
         for (Material material : materials) {
             addMaterialToTable(material);
         }
@@ -270,14 +524,13 @@ public class CatalogPanel extends JPanel {
 
     private void addMaterialToTable(Material material) {
         tableModel.addRow(new Object[] {
-            getMaterialType(material),
-            material.getCode(),
-            material.getTitle(),
-            material.getYear(),
-            material.getPages(),
-            getMaterialDetail(material),
-            material.isAvailable() ? "Si" : "No",
-            material.daysMaxLoan()
+                material.getCode(),
+                material.getTitle(),
+                getMaterialType(material),
+                material.getYear(),
+                material.getPages(),
+                getMaterialDetail(material),
+                material.isAvailable() ? "Sí" : "No"
         });
     }
 
@@ -301,7 +554,7 @@ public class CatalogPanel extends JPanel {
 
         if (material instanceof Magazine) {
             Magazine magazine = (Magazine) material;
-            return "Edicion: " + magazine.getEditionNumber();
+            return "Edición: " + magazine.getEditionNumber();
         }
 
         return "";
@@ -311,7 +564,7 @@ public class CatalogPanel extends JPanel {
         String text = field.getText().trim();
 
         if (text.isEmpty()) {
-            throw new IllegalArgumentException("El campo " + fieldName + " no puede estar vacio.");
+            throw new IllegalArgumentException("El campo " + fieldName + " no puede estar vacío.");
         }
 
         return text;
@@ -328,10 +581,19 @@ public class CatalogPanel extends JPanel {
             }
 
             return number;
-
         } catch (NumberFormatException ex) {
-            throw new IllegalArgumentException("El campo " + fieldName + " debe ser un numero entero.");
+            throw new IllegalArgumentException("El campo " + fieldName + " debe ser un número entero.");
         }
+    }
+
+    private int readValidYear(JTextField field) {
+        int year = readPositiveInt(field, "año");
+
+        if (year < 1500 || year > 2100) {
+            throw new IllegalArgumentException("El año debe estar entre 1500 y 2100.");
+        }
+
+        return year;
     }
 
     private void clearFields() {
@@ -341,10 +603,98 @@ public class CatalogPanel extends JPanel {
         pagesField.setText("");
         extraField.setText("");
         typeComboBox.setSelectedIndex(0);
+        updateExtraField();
         codeField.requestFocus();
     }
 
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private static class PlaceholderTextField extends JTextField {
+
+        private static final long serialVersionUID = 1L;
+
+        private String placeholder;
+
+        public PlaceholderTextField(String placeholder) {
+            this.placeholder = placeholder;
+            setFont(new Font("Arial", Font.PLAIN, 15));
+            setForeground(TEXT_COLOR);
+            setBackground(Color.WHITE);
+            setBorder(BorderFactory.createCompoundBorder(
+                    new RoundedBorder(BORDER_COLOR, 1, 10),
+                    BorderFactory.createEmptyBorder(0, 14, 0, 14)
+            ));
+            setPreferredSize(new Dimension(230, 38));
+            setMinimumSize(new Dimension(180, 38));
+            addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusGained(FocusEvent e) {
+                    repaint();
+                }
+
+                @Override
+                public void focusLost(FocusEvent e) {
+                    repaint();
+                }
+            });
+        }
+
+        public void setPlaceholder(String placeholder) {
+            this.placeholder = placeholder;
+            repaint();
+        }
+
+        @Override
+        protected void paintComponent(Graphics graphics) {
+            super.paintComponent(graphics);
+
+            if (getText().isEmpty() && placeholder != null && !placeholder.isEmpty() && !hasFocus()) {
+                Graphics2D graphics2D = (Graphics2D) graphics.create();
+                graphics2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                graphics2D.setColor(new Color(142, 151, 169));
+                graphics2D.setFont(getFont());
+                Insets insets = getInsets();
+                graphics2D.drawString(placeholder, insets.left, getHeight() / 2 + graphics2D.getFontMetrics().getAscent() / 2 - 3);
+                graphics2D.dispose();
+            }
+        }
+    }
+
+    private static class RoundedBorder implements Border {
+
+        private Color color;
+        private int thickness;
+        private int radius;
+
+        public RoundedBorder(Color color, int thickness, int radius) {
+            this.color = color;
+            this.thickness = thickness;
+            this.radius = radius;
+        }
+
+        @Override
+        public Insets getBorderInsets(Component component) {
+            return new Insets(thickness, thickness, thickness, thickness);
+        }
+
+        @Override
+        public boolean isBorderOpaque() {
+            return false;
+        }
+
+        @Override
+        public void paintBorder(Component component, Graphics graphics, int x, int y, int width, int height) {
+            Graphics2D graphics2D = (Graphics2D) graphics.create();
+            graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            graphics2D.setColor(color);
+
+            for (int i = 0; i < thickness; i++) {
+                graphics2D.drawRoundRect(x + i, y + i, width - 1 - i - i, height - 1 - i - i, radius, radius);
+            }
+
+            graphics2D.dispose();
+        }
     }
 }
