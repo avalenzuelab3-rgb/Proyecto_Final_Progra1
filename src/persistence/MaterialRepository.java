@@ -10,81 +10,110 @@ import domain.Material;
 public class MaterialRepository {
 
     private static final String FILE_NAME = "materials.csv";
+
     private CsvFileManager csvFileManager;
 
     public MaterialRepository() {
         csvFileManager = new CsvFileManager();
     }
 
-    public void saveMaterials(List<Material> materials) {
+    public void save(List<Material> materials) {
         List<String> lines = new ArrayList<String>();
 
         for (Material material : materials) {
-            if (material instanceof Book) {
-                Book book = (Book) material;
-
-                lines.add("BOOK,"
-                        + book.getCode() + ","
-                        + book.getTitle() + ","
-                        + book.getAutor() + ","
-                        + book.getPages() + ","
-                        + book.getYear() + ","
-                        + book.isAvailable());
-
-            } else if (material instanceof Magazine) {
-                Magazine magazine = (Magazine) material;
-
-                lines.add("MAGAZINE,"
-                        + magazine.getCode() + ","
-                        + magazine.getTitle() + ","
-                        + magazine.getEditionNumber() + ","
-                        + magazine.getPages() + ","
-                        + magazine.getYear() + ","
-                        + magazine.isAvailable());
-            }
+            lines.add(toCsvLine(material));
         }
 
-        csvFileManager.writeAllLines(FILE_NAME, lines);
+        csvFileManager.writeLines(FILE_NAME, lines);
     }
 
-    public List<Material> loadMaterials() {
+    public List<Material> load() {
         List<Material> materials = new ArrayList<Material>();
-        List<String> lines = csvFileManager.readAllLines(FILE_NAME);
+        List<String> lines = csvFileManager.readLines(FILE_NAME);
 
         for (String line : lines) {
-            if (line == null || line.trim().isEmpty()) {
-                continue;
-            }
+            Material material = fromCsvLine(line);
 
-            try {
-                String[] data = line.split("[;,]");
-
-                if (data[0].equals("BOOK")) {
-                    int code = Integer.parseInt(data[1]);
-                    String title = data[2];
-                    String author = data[3];
-                    int pages = Integer.parseInt(data[4]);
-                    int year = Integer.parseInt(data[5]);
-                    boolean available = Boolean.parseBoolean(data[6]);
-
-                    materials.add(new Book(title, author, pages, code, year, available));
-
-                } else if (data[0].equals("MAGAZINE")) {
-                    int code = Integer.parseInt(data[1]);
-                    String title = data[2];
-                    int editionNumber = Integer.parseInt(data[3]);
-                    int pages = Integer.parseInt(data[4]);
-                    int year = Integer.parseInt(data[5]);
-                    boolean available = Boolean.parseBoolean(data[6]);
-
-                    materials.add(new Magazine(title, editionNumber, code, year, available, pages));
-                }
-
-            } catch (Exception e) {
-                System.err.println("Error cargando material: " + line);
+            if (material != null) {
+                materials.add(material);
             }
         }
 
         return materials;
+    }
+
+    private String toCsvLine(Material material) {
+        String type = "MATERIAL";
+        String extra = "";
+
+        if (material instanceof Book) {
+            type = "BOOK";
+            extra = sanitize(((Book) material).getAutor());
+        } else if (material instanceof Magazine) {
+            type = "MAGAZINE";
+            extra = String.valueOf(((Magazine) material).getEditionNumber());
+        }
+
+        return type + ";"
+                + material.getCode() + ";"
+                + sanitize(material.getTitle()) + ";"
+                + material.getYear() + ";"
+                + material.isAvailable() + ";"
+                + material.getPages() + ";"
+                + extra;
+    }
+
+    private Material fromCsvLine(String line) {
+        if (line == null || line.trim().isEmpty()) {
+            return null;
+        }
+
+        String[] data = line.split(";", -1);
+
+        if (data.length < 7) {
+            return null;
+        }
+
+        try {
+            String type = data[0];
+            int code = Integer.parseInt(data[1]);
+            String title = data[2];
+            int year = Integer.parseInt(data[3]);
+            boolean available = Boolean.parseBoolean(data[4]);
+            int pages = Integer.parseInt(data[5]);
+            String extra = data[6];
+
+            if ("BOOK".equalsIgnoreCase(type)) {
+                return new Book(title, extra, pages, code, year, available);
+            }
+
+            if ("MAGAZINE".equalsIgnoreCase(type)) {
+                int editionNumber = Integer.parseInt(extra);
+                return new Magazine(title, editionNumber, code, year, available, pages);
+            }
+
+        } catch (NumberFormatException e) {
+            System.err.println("Línea de material inválida: " + line);
+        } catch (IllegalArgumentException e) {
+            System.err.println("Material inválido: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    private String sanitize(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value.replace(";", ",").trim();
+    }
+
+    public void writeTestLine() {
+        csvFileManager.writeLine(FILE_NAME, "BOOK;1;Libro de prueba;2026;true;100;Autor de prueba");
+    }
+
+    public String readTestLine() {
+        return csvFileManager.readFirstLine(FILE_NAME);
     }
 }

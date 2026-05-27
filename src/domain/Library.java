@@ -3,27 +3,55 @@ package domain;
 import java.util.ArrayList;
 import java.util.List;
 
+import persistence.LoanRepository;
+import persistence.MaterialRepository;
+import persistence.UserRepository;
+
 public class Library {
 
     private List<Material> materials;
     private List<User> users;
     private List<Loan> loans;
 
+    private MaterialRepository materialRepository;
+    private UserRepository userRepository;
+    private LoanRepository loanRepository;
+
     public Library() {
+        materialRepository = new MaterialRepository();
+        userRepository = new UserRepository();
+        loanRepository = new LoanRepository();
+
         materials = new ArrayList<Material>();
         users = new ArrayList<User>();
         loans = new ArrayList<Loan>();
+
+        loadData();
     }
 
-    public void registerMaterial(Material m) {
-        if (m != null && findMaterialByCode(m.getCode()) == null) {
-            materials.add(m);
+    private void loadData() {
+        materials = materialRepository.load();
+        users = userRepository.load();
+        loans = loanRepository.load(materials, users);
+    }
+
+    private void saveData() {
+        materialRepository.save(materials);
+        userRepository.save(users);
+        loanRepository.save(loans);
+    }
+
+    public void registerMaterial(Material material) {
+        if (material != null && findMaterialByCode(material.getCode()) == null) {
+            materials.add(material);
+            saveData();
         }
     }
 
-    public void registerUser(User u) {
-        if (u != null && findUserById(u.getCarnet()) == null) {
-            users.add(u);
+    public void registerUser(User user) {
+        if (user != null && findUserById(user.getCarnet()) == null) {
+            users.add(user);
+            saveData();
         }
     }
 
@@ -48,10 +76,12 @@ public class Library {
         }
 
         Loan loan = new Loan(material, user);
-        loans.add(loan);
 
+        loans.add(loan);
+        user.addLoan(loan);
         material.setAvailable(false);
 
+        saveData();
         return true;
     }
 
@@ -59,9 +89,13 @@ public class Library {
         for (int i = 0; i < loans.size(); i++) {
             Loan loan = loans.get(i);
 
-            if (loan.getMaterial().getCode() == materialCode) {
+            if (loan.getMaterial().getCode() == materialCode && loan.isActive()) {
+                loan.markAsReturned();
                 loan.getMaterial().setAvailable(true);
+                loan.getUser().removeLoan(loan);
                 loans.remove(i);
+
+                saveData();
                 return true;
             }
         }
@@ -92,8 +126,14 @@ public class Library {
     public int countUserLoans(User user) {
         int counter = 0;
 
+        if (user == null) {
+            return counter;
+        }
+
         for (Loan loan : loans) {
-            if (loan.getUser().getCarnet().equals(user.getCarnet())) {
+            if (loan != null
+                    && loan.isActive()
+                    && loan.getUser().getCarnet().equals(user.getCarnet())) {
                 counter++;
             }
         }

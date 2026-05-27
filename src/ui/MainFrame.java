@@ -62,7 +62,7 @@ public class MainFrame extends JFrame {
 
         tabs.addTab("Catálogo", new CatalogPanel(library));
         tabs.addTab("Usuarios", new UsersPanel(library));
-        tabs.addTab("Operaciones", new OperationsPanel(library));
+        tabs.addTab("Prestar material", new LoanPanel(library));
         tabs.addTab("Préstamos activos", new ActiveLoansPanel(library));
 
         return tabs;

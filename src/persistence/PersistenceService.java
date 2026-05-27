@@ -1,6 +1,9 @@
 package persistence;
 
+import java.util.List;
+
 import domain.Library;
+import domain.Loan;
 import domain.Material;
 import domain.User;
 
@@ -16,32 +19,37 @@ public class PersistenceService {
         loanRepository = new LoanRepository();
     }
 
-    public void loadAll(Library library) {
-        for (Material material : materialRepository.loadMaterials()) {
-            library.registerMaterial(material);
-        }
-
-        for (User user : userRepository.loadUsers()) {
-            library.registerUser(user);
-        }
-
-        loanRepository.loadLoans(library);
+    public List<Material> loadMaterials() {
+        return materialRepository.load();
     }
 
-    public void saveMaterials(Library library) {
-        materialRepository.saveMaterials(library.getMaterials());
+    public List<User> loadUsers() {
+        return userRepository.load();
     }
 
-    public void saveUsers(Library library) {
-        userRepository.saveUsers(library.getUsers());
+    public List<Loan> loadLoans(Library library) {
+        return loanRepository.load(library.getMaterials(), library.getUsers());
     }
 
-    public void saveLoans(Library library) {
-        loanRepository.saveLoans(library.getLoans());
+    public List<Loan> loadLoans(List<Material> materials, List<User> users) {
+        return loanRepository.load(materials, users);
     }
 
-    public void saveLoansAndMaterials(Library library) {
-        saveMaterials(library);
-        saveLoans(library);
+    public void saveMaterials(List<Material> materials) {
+        materialRepository.save(materials);
+    }
+
+    public void saveUsers(List<User> users) {
+        userRepository.save(users);
+    }
+
+    public void saveLoans(List<Loan> loans) {
+        loanRepository.save(loans);
+    }
+
+    public void saveAll(List<Material> materials, List<User> users, List<Loan> loans) {
+        saveMaterials(materials);
+        saveUsers(users);
+        saveLoans(loans);
     }
 }

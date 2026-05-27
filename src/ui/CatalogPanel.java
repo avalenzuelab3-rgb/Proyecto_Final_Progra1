@@ -485,7 +485,7 @@ public class CatalogPanel extends JPanel {
             }
 
             library.registerMaterial(material);
-            new PersistenceService().saveMaterials(library);
+            new PersistenceService().saveMaterials(library.getMaterials());
 
             refreshTable();
             clearFields();
@@ -539,7 +539,7 @@ public class CatalogPanel extends JPanel {
 
         if (confirm == JOptionPane.YES_OPTION) {
             library.getMaterials().remove(material);
-            new PersistenceService().saveMaterials(library);
+            new PersistenceService().saveMaterials(library.getMaterials());
 
             refreshTable();
 
