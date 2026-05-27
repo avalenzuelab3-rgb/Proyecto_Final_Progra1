@@ -11,14 +11,12 @@ public class PersistenceService {
     private LoanRepository loanRepository;
 
     public PersistenceService() {
-
         materialRepository = new MaterialRepository();
         userRepository = new UserRepository();
         loanRepository = new LoanRepository();
     }
 
     public void loadAll(Library library) {
-
         for (Material material : materialRepository.loadMaterials()) {
             library.registerMaterial(material);
         }
@@ -30,29 +28,20 @@ public class PersistenceService {
         loanRepository.loadLoans(library);
     }
 
-    public void saveAll(Library library) {
-
-        materialRepository.saveMaterials(library.getMaterials());
-
-        userRepository.saveUsers(library.getUsers());
-
-        loanRepository.saveLoans(library.getLoans());
-    }
-
     public void saveMaterials(Library library) {
-
         materialRepository.saveMaterials(library.getMaterials());
     }
 
     public void saveUsers(Library library) {
-
         userRepository.saveUsers(library.getUsers());
     }
 
-    public void saveLoansAndMaterials(Library library) {
-
-        materialRepository.saveMaterials(library.getMaterials());
-
+    public void saveLoans(Library library) {
         loanRepository.saveLoans(library.getLoans());
+    }
+
+    public void saveLoansAndMaterials(Library library) {
+        saveMaterials(library);
+        saveLoans(library);
     }
 }

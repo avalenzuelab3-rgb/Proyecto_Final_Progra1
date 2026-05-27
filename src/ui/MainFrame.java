@@ -24,8 +24,8 @@ public class MainFrame extends JFrame {
         this.library = library;
 
         setTitle("Biblioteca 2.0");
-        setSize(900, 600);
-        setMinimumSize(new Dimension(800, 500));
+        setSize(1100, 700);
+        setMinimumSize(new Dimension(900, 600));
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -40,12 +40,12 @@ public class MainFrame extends JFrame {
 
     private JPanel createHeaderPanel() {
         JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(16, 24, 16, 24));
         headerPanel.setBackground(new Color(45, 62, 80));
 
         JLabel titleLabel = new JLabel("Biblioteca 2.0", SwingConstants.LEFT);
         titleLabel.setForeground(Color.WHITE);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 26));
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
 
         JLabel subtitleLabel = new JLabel("Sistema de gestión de materiales, usuarios y préstamos", SwingConstants.RIGHT);
         subtitleLabel.setForeground(Color.WHITE);
