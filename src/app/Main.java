@@ -34,11 +34,11 @@ public class Main {
 
     private static void crearDatosDePrueba(Library library) {
 
-        Book book1 = new Book("El Principito", "Antoine de Saint-Exupery", 120, 101, 1943, true);
-        Book book2 = new Book("Don Quijote de la Mancha", "Miguel de Cervantes", 500, 102, 1605, true);
+    	Book book1 = new Book("El Principito", "Antoine de Saint-Exupery", 120, 101, 1943, true, 5);
+    	Book book2 = new Book("Don Quijote de la Mancha", "Miguel de Cervantes", 500, 102, 1605, true, 3);
 
-        Magazine magazine1 = new Magazine("National Geographic", 25, 201, 2024, true, 80);
-        Magazine magazine2 = new Magazine("Muy Interesante", 10, 202, 2023, true, 60);
+    	Magazine magazine1 = new Magazine("National Geographic", 25, 201, 2024, true, 80, 4);
+    	Magazine magazine2 = new Magazine("Muy Interesante", 10, 202, 2023, true, 60, 2);
 
         library.registerMaterial(book1);
         library.registerMaterial(book2);

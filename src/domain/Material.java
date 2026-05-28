@@ -1,65 +1,124 @@
 package domain;
 
 public abstract class Material {
-	//Clase abstracta base de todo material de biblioteca. Guarda los datos comunes y obliga a que `Book` y `Magazine` tengan su propio comportamiento.
-	private String title;
-	private int code;
-	private int year;
-	private boolean available;
-	private int pages;
-	
-    // Constructor para inicializar todos los atributos
+
+    private String title;
+    private int code;
+    private int year;
+    private int pages;
+
+    private int stock;
+    private int borrowedCopies;
+
     public Material(String title, int code, int year, boolean available, int pages) {
-        this.title = title;
+        this(title, code, year, available, pages, available ? 1 : 0);
+    }
+
+    public Material(String title, int code, int year, boolean available, int pages, int stock) {
+        setTitle(title);
+        setCode(code);
+        setYear(year);
+        setPages(pages);
+        setStock(stock);
+        this.borrowedCopies = 0;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("El título no puede estar vacío.");
+        }
+        this.title = title.trim();
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        if (code <= 0) {
+            throw new IllegalArgumentException("El código debe ser mayor que 0.");
+        }
         this.code = code;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        if (year < 1500 || year > 2100) {
+            throw new IllegalArgumentException("El año debe estar entre 1500 y 2100.");
+        }
         this.year = year;
-        this.available = available;
+    }
+
+    public int getPages() {
+        return pages;
+    }
+
+    public void setPages(int pages) {
+        if (pages <= 0) {
+            throw new IllegalArgumentException("Las páginas deben ser mayores que 0.");
+        }
         this.pages = pages;
     }
-	
-	public String getTitle() {
-		return title;
-	}
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    public int getStock() {
+        return stock;
+    }
 
-	public int getCode() {
-		return code;
-	}
+    public void setStock(int stock) {
+        if (stock < 0) {
+            throw new IllegalArgumentException("El stock no puede ser negativo.");
+        }
 
-	public void setCode(int code) {
-		this.code = code;
-	}
+        if (stock < borrowedCopies) {
+            throw new IllegalArgumentException("El stock no puede ser menor que las copias prestadas.");
+        }
 
-	public int getYear() {
-		return year;
-	}
+        this.stock = stock;
+    }
 
-	public void setYear(int year) {
-		this.year = year;
-	}
+    public int getBorrowedCopies() {
+        return borrowedCopies;
+    }
 
-	public boolean isAvailable() {
-		return available;
-	}
+    public int getAvailableCopies() {
+        return stock - borrowedCopies;
+    }
 
-	public void setAvailable(boolean available) {
-		this.available = available;
-	}
+    public boolean hasAvailableCopies() {
+        return getAvailableCopies() > 0;
+    }
 
-	public int getPages() {
-		return pages;
-	}
+    public boolean isAvailable() {
+        return hasAvailableCopies();
+    }
 
-	public void setPages(int pages) {
-		this.pages = pages;
-	}
-	
-	public abstract double calculateFine(); //calcular multa
-	
-	public abstract int daysMaxLoan(); //dias prestamo maximo
+    public void setAvailable(boolean available) {
+        // Se deja solo para compatibilidad con código viejo.
+        // Con stock, la disponibilidad real depende de getAvailableCopies().
+    }
 
+    public void borrowCopy() {
+        if (!hasAvailableCopies()) {
+            throw new IllegalStateException("No hay copias disponibles de este material.");
+        }
+
+        borrowedCopies++;
+    }
+
+    public void returnCopy() {
+        if (borrowedCopies > 0) {
+            borrowedCopies--;
+        }
+    }
+
+    public abstract double calculateFine();
+
+    public abstract int daysMaxLoan();
 }
-

@@ -66,6 +66,7 @@ public class CatalogPanel extends JPanel {
     private PlaceholderTextField extraField;
     private PlaceholderTextField searchField;
     private JLabel extraLabel;
+    private PlaceholderTextField stockField;
 
     private JTable materialsTable;
     private DefaultTableModel tableModel;
@@ -173,6 +174,7 @@ public class CatalogPanel extends JPanel {
         yearField = new PlaceholderTextField("Ingrese año");
         pagesField = new PlaceholderTextField("Ingrese páginas");
         extraField = new PlaceholderTextField("Ingrese autor");
+        stockField = new PlaceholderTextField("Ingrese stock");
 
         typeComboBox = new JComboBox<String>(new String[] { "Libro", "Revista" });
         typeComboBox.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -187,9 +189,11 @@ public class CatalogPanel extends JPanel {
         addField(fieldsPanel, gbc, 1, "Título", titleField);
         addField(fieldsPanel, gbc, 2, "Año", yearField);
         addField(fieldsPanel, gbc, 3, "Páginas", pagesField);
-        addField(fieldsPanel, gbc, 4, extraLabel, extraField);
-        addField(fieldsPanel, gbc, 5, "Tipo de material", typeComboBox);
+        addField(fieldsPanel, gbc, 4, "Stock", stockField);
+        addField(fieldsPanel, gbc, 5, extraLabel, extraField);
+        addField(fieldsPanel, gbc, 6, "Tipo de material", typeComboBox);
 
+        gbc.gridy = 7;
         gbc.gridy = 6;
         gbc.weighty = 1.0;
         fieldsPanel.add(new JLabel(), gbc);
@@ -309,7 +313,17 @@ public class CatalogPanel extends JPanel {
     }
 
     private JScrollPane createTablePanel() {
-        String[] columns = { "Código", "Título", "Tipo", "Año", "Páginas", "Detalle", "Disponible" };
+    	String[] columns = {
+    	        "Código",
+    	        "Título",
+    	        "Tipo",
+    	        "Año",
+    	        "Páginas",
+    	        "Detalle",
+    	        "Stock",
+    	        "Prestados",
+    	        "Disponibles"
+    	};
 
         tableModel = new DefaultTableModel(columns, 0) {
             private static final long serialVersionUID = 1L;
@@ -467,6 +481,7 @@ public class CatalogPanel extends JPanel {
             String title = readRequiredText(titleField, "título");
             int year = readValidYear(yearField);
             int pages = readPositiveInt(pagesField, "páginas");
+            int stock = readPositiveInt(stockField, "stock");
 
             if (library.findMaterialByCode(code) != null) {
                 showError("Ya existe un material registrado con ese código.");
@@ -478,10 +493,10 @@ public class CatalogPanel extends JPanel {
 
             if ("Libro".equals(type)) {
                 String author = readRequiredText(extraField, "autor");
-                material = new Book(title, author, pages, code, year, true);
+                material = new Book(title, author, pages, code, year, true, stock);
             } else {
                 int editionNumber = readPositiveInt(extraField, "número de edición");
-                material = new Magazine(title, editionNumber, code, year, true, pages);
+                material = new Magazine(title, editionNumber, code, year, true, pages, stock);
             }
 
             library.registerMaterial(material);
@@ -525,8 +540,8 @@ public class CatalogPanel extends JPanel {
             return;
         }
 
-        if (!material.isAvailable()) {
-            showError("No se puede eliminar un material prestado. Primero debe devolverlo.");
+        if (material.getBorrowedCopies() > 0) {
+            showError("No se puede eliminar un material con copias prestadas. Primero debe devolverlas.");
             return;
         }
 
@@ -595,15 +610,17 @@ public class CatalogPanel extends JPanel {
     }
 
     private void addMaterialToTable(Material material) {
-        tableModel.addRow(new Object[] {
-                material.getCode(),
-                material.getTitle(),
-                getMaterialType(material),
-                material.getYear(),
-                material.getPages(),
-                getMaterialDetail(material),
-                material.isAvailable() ? "Sí" : "No"
-        });
+    	tableModel.addRow(new Object[] {
+    	        material.getCode(),
+    	        material.getTitle(),
+    	        getMaterialType(material),
+    	        material.getYear(),
+    	        material.getPages(),
+    	        getMaterialDetail(material),
+    	        material.getStock(),
+    	        material.getBorrowedCopies(),
+    	        material.getAvailableCopies()
+    	});
     }
 
     private String getMaterialType(Material material) {
@@ -674,6 +691,7 @@ public class CatalogPanel extends JPanel {
         titleField.setText("");
         yearField.setText("");
         pagesField.setText("");
+        stockField.setText("");
         extraField.setText("");
         typeComboBox.setSelectedIndex(0);
         updateExtraField();

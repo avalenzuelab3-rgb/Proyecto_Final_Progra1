@@ -332,9 +332,10 @@ public class ActiveLoansPanel extends JPanel {
 
         int modelRow = loansTable.convertRowIndexToModel(selectedRow);
         int materialCode = Integer.parseInt(loansModel.getValueAt(modelRow, 0).toString());
+        String userCarnet = loansModel.getValueAt(modelRow, 2).toString();
         String materialTitle = loansModel.getValueAt(modelRow, 1).toString();
         String userName = loansModel.getValueAt(modelRow, 3).toString();
-
+        
         int option = JOptionPane.showConfirmDialog(
                 this,
                 "¿Desea devolver el material seleccionado?\n\n"
@@ -349,7 +350,7 @@ public class ActiveLoansPanel extends JPanel {
             return;
         }
 
-        boolean returned = library.returnMaterial(materialCode);
+        boolean returned = library.returnMaterial(materialCode, userCarnet);
 
         if (returned) {
             showInfo("Material devuelto correctamente.");

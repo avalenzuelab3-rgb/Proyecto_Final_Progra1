@@ -42,17 +42,29 @@ public class Library {
     }
 
     public void registerMaterial(Material material) {
-        if (material != null && findMaterialByCode(material.getCode()) == null) {
-            materials.add(material);
-            saveData();
+        if (material == null) {
+            return;
         }
+
+        if (findMaterialByCode(material.getCode()) != null) {
+            return;
+        }
+
+        materials.add(material);
+        saveData();
     }
 
     public void registerUser(User user) {
-        if (user != null && findUserById(user.getCarnet()) == null) {
-            users.add(user);
-            saveData();
+        if (user == null) {
+            return;
         }
+
+        if (findUserById(user.getCarnet()) != null) {
+            return;
+        }
+
+        users.add(user);
+        saveData();
     }
 
     public boolean loanMaterial(int materialCode, String userId) {
@@ -67,7 +79,7 @@ public class Library {
             return false;
         }
 
-        if (!material.isAvailable()) {
+        if (!material.hasAvailableCopies()) {
             return false;
         }
 
@@ -75,23 +87,54 @@ public class Library {
             return false;
         }
 
-        Loan loan = new Loan(material, user);
+        try {
+            material.borrowCopy();
 
-        loans.add(loan);
-        user.addLoan(loan);
-        material.setAvailable(false);
+            Loan loan = new Loan(material, user);
+            loans.add(loan);
+            user.addLoan(loan);
 
-        saveData();
-        return true;
+            saveData();
+            return true;
+
+        } catch (IllegalStateException ex) {
+            System.err.println("No se pudo prestar el material: " + ex.getMessage());
+            return false;
+        }
     }
 
     public boolean returnMaterial(int materialCode) {
         for (int i = 0; i < loans.size(); i++) {
             Loan loan = loans.get(i);
 
-            if (loan.getMaterial().getCode() == materialCode && loan.isActive()) {
+            if (loan != null
+                    && loan.isActive()
+                    && loan.getMaterial().getCode() == materialCode) {
+
                 loan.markAsReturned();
-                loan.getMaterial().setAvailable(true);
+                loan.getMaterial().returnCopy();
+                loan.getUser().removeLoan(loan);
+                loans.remove(i);
+
+                saveData();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean returnMaterial(int materialCode, String userCarnet) {
+        for (int i = 0; i < loans.size(); i++) {
+            Loan loan = loans.get(i);
+
+            if (loan != null
+                    && loan.isActive()
+                    && loan.getMaterial().getCode() == materialCode
+                    && loan.getUser().getCarnet().equals(userCarnet)) {
+
+                loan.markAsReturned();
+                loan.getMaterial().returnCopy();
                 loan.getUser().removeLoan(loan);
                 loans.remove(i);
 
@@ -105,7 +148,7 @@ public class Library {
 
     public Material findMaterialByCode(int code) {
         for (Material material : materials) {
-            if (material.getCode() == code) {
+            if (material != null && material.getCode() == code) {
                 return material;
             }
         }
@@ -114,8 +157,12 @@ public class Library {
     }
 
     public User findUserById(String id) {
+        if (id == null) {
+            return null;
+        }
+
         for (User user : users) {
-            if (id != null && id.equals(user.getCarnet())) {
+            if (user != null && id.equals(user.getCarnet())) {
                 return user;
             }
         }
@@ -133,12 +180,63 @@ public class Library {
         for (Loan loan : loans) {
             if (loan != null
                     && loan.isActive()
+                    && loan.getUser() != null
                     && loan.getUser().getCarnet().equals(user.getCarnet())) {
                 counter++;
             }
         }
 
         return counter;
+    }
+
+    public List<Material> getAvailableMaterials() {
+        List<Material> availableMaterials = new ArrayList<Material>();
+
+        for (Material material : materials) {
+            if (material != null && material.hasAvailableCopies()) {
+                availableMaterials.add(material);
+            }
+        }
+
+        return availableMaterials;
+    }
+
+    public List<Loan> getActiveLoans() {
+        List<Loan> activeLoans = new ArrayList<Loan>();
+
+        for (Loan loan : loans) {
+            if (loan != null && loan.isActive()) {
+                activeLoans.add(loan);
+            }
+        }
+
+        return activeLoans;
+    }
+
+    public boolean canDeleteMaterial(int materialCode) {
+        Material material = findMaterialByCode(materialCode);
+
+        if (material == null) {
+            return false;
+        }
+
+        return material.getBorrowedCopies() == 0;
+    }
+
+    public boolean deleteMaterial(int materialCode) {
+        Material material = findMaterialByCode(materialCode);
+
+        if (material == null) {
+            return false;
+        }
+
+        if (material.getBorrowedCopies() > 0) {
+            return false;
+        }
+
+        materials.remove(material);
+        saveData();
+        return true;
     }
 
     public List<Material> getMaterials() {

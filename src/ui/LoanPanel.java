@@ -153,6 +153,7 @@ public class LoanPanel extends JPanel {
         availableMaterialsModel.addColumn("Código");
         availableMaterialsModel.addColumn("Título");
         availableMaterialsModel.addColumn("Tipo");
+        availableMaterialsModel.addColumn("Disponibles");
         availableMaterialsModel.addColumn("Días máximos");
 
         availableMaterialsTable = new JTable(availableMaterialsModel);
@@ -207,8 +208,8 @@ public class LoanPanel extends JPanel {
             return;
         }
 
-        if (!selectedMaterial.isAvailable()) {
-            showError("El material seleccionado ya no está disponible.");
+        if (!selectedMaterial.hasAvailableCopies()) {
+            showError("El material seleccionado ya no tiene copias disponibles.");
             refreshAvailableMaterialsTable();
             return;
         }
@@ -364,16 +365,17 @@ public class LoanPanel extends JPanel {
         int availableCount = 0;
 
         for (Material material : library.getMaterials()) {
-            if (material.isAvailable()) {
+            if (material.hasAvailableCopies()) {
                 Object[] row = {
                         material.getCode(),
                         material.getTitle(),
                         material.getClass().getSimpleName(),
+                        material.getAvailableCopies(),
                         material.daysMaxLoan()
                 };
 
                 availableMaterialsModel.addRow(row);
-                availableCount++;
+                availableCount += material.getAvailableCopies();
             }
         }
 

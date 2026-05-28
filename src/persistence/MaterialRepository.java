@@ -60,7 +60,8 @@ public class MaterialRepository {
                 + material.getYear() + ";"
                 + material.isAvailable() + ";"
                 + material.getPages() + ";"
-                + extra;
+                + extra + ";"
+                + material.getStock();
     }
 
     private Material fromCsvLine(String line) {
@@ -83,13 +84,21 @@ public class MaterialRepository {
             int pages = Integer.parseInt(data[5]);
             String extra = data[6];
 
+            int stock = 1;
+
+            if (data.length >= 8) {
+                stock = Integer.parseInt(data[7]);
+            } else if (!available) {
+                stock = 1;
+            }
+
             if ("BOOK".equalsIgnoreCase(type)) {
-                return new Book(title, extra, pages, code, year, available);
+                return new Book(title, extra, pages, code, year, true, stock);
             }
 
             if ("MAGAZINE".equalsIgnoreCase(type)) {
                 int editionNumber = Integer.parseInt(extra);
-                return new Magazine(title, editionNumber, code, year, available, pages);
+                return new Magazine(title, editionNumber, code, year, true, pages, stock);
             }
 
         } catch (NumberFormatException e) {
@@ -110,7 +119,7 @@ public class MaterialRepository {
     }
 
     public void writeTestLine() {
-        csvFileManager.writeLine(FILE_NAME, "BOOK;1;Libro de prueba;2026;true;100;Autor de prueba");
+        csvFileManager.writeLine(FILE_NAME, "BOOK;1;Libro de prueba;2026;true;100;Autor de prueba;5");
     }
 
     public String readTestLine() {

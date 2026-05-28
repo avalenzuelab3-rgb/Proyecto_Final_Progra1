@@ -38,8 +38,13 @@ public class LoanRepository {
             Loan loan = fromCsvLine(line, materials, users);
 
             if (loan != null) {
-                loans.add(loan);
-                loan.getMaterial().setAvailable(false);
+                if (loan.getMaterial().hasAvailableCopies()) {
+                    loan.getMaterial().borrowCopy();
+                    loan.getUser().addLoan(loan);
+                    loans.add(loan);
+                } else {
+                    System.err.println("No hay stock suficiente para cargar el préstamo: " + line);
+                }
             }
         }
 
