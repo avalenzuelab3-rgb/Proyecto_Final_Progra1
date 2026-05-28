@@ -238,6 +238,23 @@ public class Library {
         saveData();
         return true;
     }
+    
+    public boolean addStockToMaterial(int materialCode, int quantity) {
+        Material material = findMaterialByCode(materialCode);
+
+        if (material == null) {
+            return false;
+        }
+
+        if (quantity <= 0) {
+            return false;
+        }
+
+        material.addStock(quantity);
+        saveData();
+
+        return true;
+    }
 
     public List<Material> getMaterials() {
         return materials;

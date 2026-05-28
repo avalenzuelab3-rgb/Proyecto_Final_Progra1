@@ -117,6 +117,14 @@ public abstract class Material {
             borrowedCopies--;
         }
     }
+    
+    public void addStock(int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("La cantidad a agregar debe ser mayor que 0.");
+        }
+
+        setStock(stock + quantity);
+    }
 
     public abstract double calculateFine();
 

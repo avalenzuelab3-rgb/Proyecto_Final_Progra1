@@ -211,19 +211,22 @@ public class CatalogPanel extends JPanel {
 
         card.add(fieldsScrollPane, BorderLayout.CENTER);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 0));
+        JPanel buttonPanel = new JPanel(new java.awt.GridLayout(2, 2, 10, 10));
         buttonPanel.setOpaque(false);
 
         JButton registerButton = createPrimaryButton("Registrar");
         JButton deleteButton = createDangerButton("Eliminar");
+        JButton addStockButton = createLightButton("Agregar stock");
         JButton clearButton = createLightButton("Limpiar");
 
         registerButton.addActionListener(e -> registerMaterial());
         deleteButton.addActionListener(e -> deleteMaterial());
+        addStockButton.addActionListener(e -> addStockToSelectedMaterial());
         clearButton.addActionListener(e -> clearFields());
 
         buttonPanel.add(registerButton);
         buttonPanel.add(deleteButton);
+        buttonPanel.add(addStockButton);
         buttonPanel.add(clearButton);
 
         card.add(buttonPanel, BorderLayout.SOUTH);
@@ -758,6 +761,79 @@ public class CatalogPanel extends JPanel {
         }
     }
 
+    private void addStockToSelectedMaterial() {
+        int selectedRow = materialsTable.getSelectedRow();
+
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Seleccione un material de la tabla para agregar stock.",
+                    "Biblioteca 2.0",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        int modelRow = materialsTable.convertRowIndexToModel(selectedRow);
+        int code = Integer.parseInt(tableModel.getValueAt(modelRow, 0).toString());
+
+        Material material = library.findMaterialByCode(code);
+
+        if (material == null) {
+            showError("No se encontró el material seleccionado.");
+            return;
+        }
+
+        String input = JOptionPane.showInputDialog(
+                this,
+                "Stock actual: " + material.getStock()
+                        + "\nCopias disponibles: " + material.getAvailableCopies()
+                        + "\n\nIngrese cuántas copias desea agregar:",
+                "Agregar stock",
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (input == null) {
+            return;
+        }
+
+        input = input.trim();
+
+        if (input.isEmpty()) {
+            showError("Debe ingresar una cantidad.");
+            return;
+        }
+
+        try {
+            int quantity = Integer.parseInt(input);
+
+            if (quantity <= 0) {
+                showError("La cantidad debe ser mayor que 0.");
+                return;
+            }
+
+            boolean updated = library.addStockToMaterial(code, quantity);
+
+            if (updated) {
+                refreshTable();
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Stock actualizado correctamente.\n\n"
+                                + "Material: " + material.getTitle()
+                                + "\nStock nuevo: " + material.getStock()
+                                + "\nDisponibles: " + material.getAvailableCopies(),
+                        "Biblioteca 2.0",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            } else {
+                showError("No se pudo actualizar el stock.");
+            }
+
+        } catch (NumberFormatException ex) {
+            showError("La cantidad debe ser un número entero.");
+        }
+    }
     private static class RoundedBorder implements Border {
 
         private Color color;
