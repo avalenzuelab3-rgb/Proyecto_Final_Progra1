@@ -44,7 +44,7 @@ Desarrollar una aplicación de escritorio que permita administrar una biblioteca
 ## Estructura del proyecto
 
 ```text
-src/
+rc/
 │
 ├── app/
 │   └── Main.java
@@ -63,11 +63,9 @@ src/
 │   ├── UsersPanel.java
 │   └── OperationsPanel.java
 │
-├── persistence/
-│   └── FileManager.java
-│
-└── util/
-    └── ValidationUtils.java
+└─── persistence/
+    └── FileManager.java
+
 ```
 
 ---
@@ -119,16 +117,6 @@ Paquete reservado para la persistencia de datos.
 | Clase         | Descripción                                                     |
 | ------------- | --------------------------------------------------------------- |
 | `FileManager` | Clase encargada de guardar y cargar información desde archivos. |
-
----
-
-### `util`
-
-Contiene clases auxiliares.
-
-| Clase             | Descripción                                                                                           |
-| ----------------- | ----------------------------------------------------------------------------------------------------- |
-| `ValidationUtils` | Centraliza validaciones como campos vacíos, años inválidos, códigos repetidos o entradas incorrectas. |
 
 ---
 
@@ -232,6 +220,16 @@ Los bocetos iniciales se realizaron para planificar las pantallas antes de progr
 
 ---
 
+### Bocetos finales
+
+Los bocetos finales se realizaron en equipo a travez de la herramienta Figma
+
+![](assets/59df4ffa6b4bdde02bf3adcf4357164f892f1b9a.png)
+
+![](assets/856be053b4a042cc994429a4406722b75ff81ff3.png)![](assets/0471f6a5aa338bdbddc0e4d12dd10be02d86af72.png)
+
+---
+
 ## División del trabajo
 
 ### Semana 1
@@ -255,14 +253,13 @@ Los bocetos iniciales se realizaron para planificar las pantallas antes de progr
 
 ---
 
-## Pendientes
+### Semana 3
 
-- Completar persistencia con archivos.
-- Agregar capturas reales de la interfaz.
-- Probar préstamos y devoluciones desde Swing.
-- Revisar validaciones finales.
-- Verificar que el proyecto compile en otra computadora.
-- Preparar demo final.
+| Rol       | Integrante | Responsabilidad                              |
+| --------- | ---------- | -------------------------------------------- |
+| Logística | Pablo      | Seguimiento de tareas y revisión del avance. |
+| Dominio   | Angel      | Ajustes del modelo y conexión con UI.        |
+| Swing     | Eddy       | Construcción de paneles gráficos.            |
 
 ---
 
