@@ -33,7 +33,7 @@ import javax.swing.table.JTableHeader;
 import domain.Library;
 import domain.User;
 import persistence.UserRepository;
-import persistence.PersistenceService;
+
 
 public class UsersPanel extends JPanel {
 
