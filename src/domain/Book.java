@@ -4,10 +4,6 @@ public class Book extends Material {
 
     private String autor;
 
-    public Book(String title, String autor, int pages, int code, int year, boolean available) {
-        super(title, code, year, available, pages);
-        setAutor(autor);
-    }
 
     public Book(String title, String autor, int pages, int code, int year, boolean available, int stock) {
         super(title, code, year, available, pages, stock);

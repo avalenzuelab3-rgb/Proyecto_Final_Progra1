@@ -16,7 +16,7 @@ public class Library {
     private MaterialRepository materialRepository;
     private UserRepository userRepository;
     private LoanRepository loanRepository;
-
+//constructor de library
     public Library() {
         materialRepository = new MaterialRepository();
         userRepository = new UserRepository();
@@ -28,13 +28,13 @@ public class Library {
 
         loadData();
     }
-
+//este metodo carga los datos desde los archivos CSV
     private void loadData() {
         materials = materialRepository.load();
         users = userRepository.load();
         loans = loanRepository.load(materials, users);
     }
-
+//guarda todo en un CSV
     private void saveData() {
         materialRepository.save(materials);
         userRepository.save(users);
@@ -86,7 +86,7 @@ public class Library {
         if (countUserLoans(user) >= user.getLoanLimit()) {
             return false;
         }
-
+//en el try cach ocurre el prestamos real
         try {
             material.borrowCopy();
 

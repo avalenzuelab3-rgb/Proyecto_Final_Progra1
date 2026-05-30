@@ -10,10 +10,6 @@ public class User {
 	private int loanLimit;
     private List<Loan> activeLoans;
 
-    // Constructor con límite por defecto
-    public User(String carnet, String name) {
-        this(carnet, name, 3);
-    }
 
     // Constructor completo
     public User(String carnet, String name, int loanLimit) {
@@ -38,11 +34,6 @@ public class User {
     public void removeLoan(Loan loan) {
         activeLoans.remove(loan);
     }
-
-	
-	public String getcarnet() {
-		return carnet;
-	}
 	public void setCarnet(String carnet) {
 		if (carnet == null || carnet.trim().isEmpty()) {
             throw new IllegalArgumentException("El carnet o carnet no puede estar vacío.");

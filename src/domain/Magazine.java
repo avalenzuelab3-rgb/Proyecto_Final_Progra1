@@ -4,10 +4,7 @@ public class Magazine extends Material {
 
     private int editionNumber;
 
-    public Magazine(String title, int editionNumber, int code, int year, boolean available, int pages) {
-        super(title, code, year, available, pages);
-        setEditionNumber(editionNumber);
-    }
+   
 
     public Magazine(String title, int editionNumber, int code, int year, boolean available, int pages, int stock) {
         super(title, code, year, available, pages, stock);

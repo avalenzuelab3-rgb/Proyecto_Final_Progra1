@@ -6,13 +6,9 @@ public abstract class Material {
     private int code;
     private int year;
     private int pages;
-
     private int stock;
     private int borrowedCopies;
 
-    public Material(String title, int code, int year, boolean available, int pages) {
-        this(title, code, year, available, pages, available ? 1 : 0);
-    }
 
     public Material(String title, int code, int year, boolean available, int pages, int stock) {
         setTitle(title);
@@ -82,26 +78,21 @@ public abstract class Material {
 
         this.stock = stock;
     }
-
+//copias prestadas
     public int getBorrowedCopies() {
         return borrowedCopies;
     }
-
+//copias disponibles
     public int getAvailableCopies() {
         return stock - borrowedCopies;
     }
-
+//este metodo devuelve un true si hay copias disponibles
     public boolean hasAvailableCopies() {
         return getAvailableCopies() > 0;
     }
 
     public boolean isAvailable() {
         return hasAvailableCopies();
-    }
-
-    public void setAvailable(boolean available) {
-        // Se deja solo para compatibilidad con código viejo.
-        // Con stock, la disponibilidad real depende de getAvailableCopies().
     }
 
     public void borrowCopy() {
